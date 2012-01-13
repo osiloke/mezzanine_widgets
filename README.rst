@@ -1,3 +1,8 @@
+NOTE:
+=========
+This app was pulled out of an existing project i have, and as a result some features may not work yet (e.g Frontend widget adding).
+I will get all functionality running by 1/14/2012
+
 OVERVIEW
 =========
 An app which makes it possible to create and add widgets to mezzanine pages. 
