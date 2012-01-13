@@ -1,0 +1,9 @@
+<ul>
+
+{%  for w in widgets %}
+{% with w.0 as widget %}
+{% spaceless %}<li><a href="{% url create_widget_class page_id widget|lower %}">{{ w.1 }}</a></li>
+{% endspaceless %}
+{% endwith %}
+{%  endfor %}
+</ul>

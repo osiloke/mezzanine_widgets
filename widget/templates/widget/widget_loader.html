@@ -1,0 +1,4 @@
+{% if request.user.is_staff %} 
+{% include "widget/widget_form.html" %}
+{% include "widget/edit_widget_form.html" %}
+{% endif %}
