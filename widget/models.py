@@ -55,17 +55,6 @@ class WidgetClassBase(object):
     def render(self, **kwargs):
         raise NotImplementedError("Render function needs to be implemented")
 
-
-class WidgetSlot(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __unicode__(self):
-        return self.name
-
-    class Count:
-        pass
-
-
 class WidgetModel(models.Model):
     widget = models.ForeignKey('widget.Widget')
 

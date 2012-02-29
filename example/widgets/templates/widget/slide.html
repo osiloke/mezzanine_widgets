@@ -1,0 +1,43 @@
+{% load i18n mezzanine_tags frontend_tags %}
+{% if query_set %}
+    <script type="text/javascript" src="{{ THEME_URL }}js/jquery.cycle.all.js"></script>
+    <script type="text/javascript">
+       $(function(){
+
+            //Slideshow Setting
+                $('#slideshow ul').cycle({
+                timeout: 5000,
+                fx:     'fade',
+                prev:   '#slideprev',
+                next:   '#slidenext',
+                pause:   0,
+                cleartypeNoBg: true,
+                pauseOnPagerHover: 0
+            });
+         });
+    </script>
+    <!-- BEGIN OF SLIDESHOW -->
+    <div id="slideshow-container-diapo">
+        <div id="slideshow">
+            <ul>
+                {% for object in query_set %}
+                <!-- begin of slide{{ forloop.counter }} -->
+                {% editable object.content %}{% endeditable %}
+                <li>
+  			{{ object.content|safe }}
+                </li>
+                <!-- end of slide{{ forloop.counter }} -->
+                {% endfor %}
+            </ul>
+
+            <div id="slidenav">
+                <div id="slideprev"></div>
+                <div id="slidenext"></div>
+            </div>
+        </div>
+    </div>
+    <!-- END OF SLIDESHOW -->
+{% else %}
+Please add some content
+{% endif %}
+{% can_add model content using widget=widget %}{% endcan_add %}

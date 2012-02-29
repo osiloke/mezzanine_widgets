@@ -25,7 +25,7 @@ setup(
     url='http://osiloke.com',
     license='BSD',
     description="An app which makes it possible to create and add widgets to mezzanine pages.",
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     zip_safe=False,
     include_package_data=True,
     packages=find_packages(), 

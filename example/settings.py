@@ -106,7 +106,7 @@ SITE_ID = 1
 USE_I18N = False
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = "36ea1307-7551-4ada-857c-40b3bd3077b8f9b68492-30fa-4afa-9717-389c6eb86b26f8028ac3-8a4a-4b02-8ca7-a6f40f303b3c"
+SECRET_KEY = "b9637ec0-ddaf-4df7-bf33-6f038842c361234ae896-afe8-4257-9bf3-eca41e81bc360d65ccc7-5c69-4007-bd65-6e352eb6c23b"
 
 # Tuple of IP addresses, as strings, that:
 #   * See debug comments, when DEBUG is true
@@ -205,6 +205,7 @@ INSTALLED_APPS = (
     "mezzanine.forms",
     "mezzanine.pages",
     "mezzanine.twitter",
+    "widget",
 )
 
 # List of processors used by RequestContext to populate the context.

@@ -1,7 +1,7 @@
 from django.contrib.admin import TabularInline
 from mezzanine.core.admin import OwnableAdmin, TabularDynamicInlineAdmin
 from widget.models import WidgetOptionEntry
-from widget.models import WidgetSlot, Widget
+from widget.models import Widget
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,6 +17,7 @@ class OptionEntryAdmin(TabularDynamicInlineAdmin):
 
 
 class OptionsAdmin(TabularInline):
+    template = "admin/widget/edit_inline/tabular.html"
     model = WidgetOptionEntry
 
 
@@ -34,6 +35,7 @@ class WidgetAdmin(OwnableAdmin):
             ("publish_date", "expiry_date"), ]}),
         (_("Widget"), {"fields": ("widgetslot", "widget_class")}),
     )
+    
     def save_model(self, request, obj, form, change):
         """
         Set the ID of the parent page if passed in via querystring.
@@ -46,6 +48,5 @@ class WidgetAdmin(OwnableAdmin):
             obj.slug = None
             obj.save() 
         super(WidgetAdmin, self).save_model(request, obj, form, change)
-    pass
-admin.site.register(WidgetSlot, admin.ModelAdmin)
+
 admin.site.register(Widget, WidgetAdmin)
