@@ -4,9 +4,8 @@ This app was pulled out of an existing project i have, and as a result some feat
 
 OVERVIEW
 =========
-This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions
- widget, custom text, custom html to mezzanine pages without modifying templates or implementing a full django app.
-
+This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget,
+custom text, custom html to mezzanine pages without modifying templates or implementing a full django app.
 
 Requirements
 ============
@@ -16,7 +15,7 @@ django-classy-tags
 METHODOLOGY
 ===========
 
-Widgets are placed in the specified slot. Slots are just placeholders inside django templates where widgets are rendered. S
+Widgets are placed in the specified slot. Slots are just placeholders inside django templates where widgets are rendered.
 They are not stored in the database. As a result, a template designer does not worry about syncing the database
 every time he wants to create a `slot` in a template. On the other hand, the end user must be aware of the `slots` available for
 widgets.
@@ -26,6 +25,9 @@ used for django admin.
 
 USAGE
 =====
+
+Page Widgets
+------------
 The widget app searches all apps in loaded in django for a file named `page_widgets.py`. This file contains code which describe
 how a widget should be rendered. An example widget which displays the addthis links is shown below::
 
@@ -54,6 +56,9 @@ Widgets can also have options. A widget which shows mentions of a twitter user i
             name = "Twitter Mentions"
             author = 'Progweb Team'
 
+
+Rendering
+---------
 Render widgets on a page by first including the widget tag library.
 
 	{% load widget_tags %}
