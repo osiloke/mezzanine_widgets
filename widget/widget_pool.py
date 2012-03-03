@@ -23,6 +23,12 @@ class WidgetNotFound(Exception):
     """
     The requested widget was not found
     """
+
+class WidgetHasNoOptions(Exception):
+    """
+    The widget has not options
+    """
+
 page_widgets = {}
 
 
@@ -65,12 +71,12 @@ def get_page_widgets_for_slot(widget):
     pass
 
 
-def get_widget_options(name):
+def get_widget_options(type):
     try: 
-        widget_class = get_widget(name)
+        widget_class = get_widget(type)
         return widget_class.options
     except AttributeError:
-        return ()
+        raise WidgetHasNoOptions(Exception)
 
 LOADED = False
 

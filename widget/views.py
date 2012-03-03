@@ -11,10 +11,10 @@ from mezzanine.pages.models import Page
 from mezzanine.template import get_template
 from mezzanine.utils.views import is_editable
 
-from widget.utilities import  LazyEncoder
+from widget.utilities import  LazyEncoder, ajax_view
 from widget.forms import WidgetForm, WidgetOptionsForm
 from widget.widget_pool import get_all_page_widgets,\
-                                                get_widget, WidgetNotFound
+                                                get_widget, WidgetNotFound, get_widget_options, WidgetHasNoOptions
 from widget.utilities import admin_can
 from widget.models import Widget
 from widget.utilities import ajaxerror
@@ -161,6 +161,24 @@ def create_widget(request):
                                  mimetype='application/json')
 
 create_widget = require_POST(create_widget)
+
+
+@ajax_view()
+@admin_can(Widget)
+def widget_options(request, type):
+    try:
+        options_form = WidgetOptionsForm(type)
+        ctx = RequestContext(request)
+        o = get_template("widget/options.html", ctx)
+        ctx.update({'options_form': options_form,
+                    'widget_class': options_form.widget_class })
+
+        options = o.render(ctx)
+        data = {'valid': True, 'type': 'fi', 'opts': options}
+    except WidgetHasNoOptions:
+        data = {"valid": False, "error": "None"}
+
+    return data
 
 @admin_can(Widget)
 def create_success(request):

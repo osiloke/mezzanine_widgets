@@ -154,7 +154,21 @@ def mkdir_p(path):
 
 
 from functools import wraps
+json_serializer = LazyEncoder()
 
+
+def ajax_view():
+    def _dec(view):
+        def _view(request, *args, **kwargs):
+            data = view(request, *args, **kwargs)
+            return HttpResponse(json_serializer.encode(data),\
+                    mimetype='application/json')
+        _view.__name__ = view.__name__
+        _view.__dict__ = view.__dict__
+        _view.__doc__ = view.__doc__
+
+        return wraps(view)(_view)
+    return _dec
 
 def admin_can(model, action="add", fail404=False):
     def _dec(view):

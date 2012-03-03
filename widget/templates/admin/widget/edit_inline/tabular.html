@@ -1,12 +1,20 @@
-{% load i18n %}
+{% load adminmedia mezzanine_tags i18n %}
+<script type="text/javascript"
+        src="{{ MEDIA_URL }}admin/js/widget.js"></script>
+
+<script type="text/javascript">
+    $(function() {
+        WidgetAdmin.setupAdmin();
+    });
+</script>
 <div class="inline-group inline-tabular{% if inline_admin_formset.opts.sortable %} sortable{% endif %}{% if inline_admin_formset.opts.classes %} {{ inline_admin_formset.opts.classes|join:" " }}{% endif %}" name="inlinegrouptabular">
     <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
     <ul class="inline-item-tools">
         {% if inline_admin_formset.opts.allow_add %}<li><a href="javascript://" class="addhandler" title="{% trans 'Add Item' %}"></a></li>{% endif %}
     </ul>
-{#    {{ inline_admin_formset.formset.management_form }}#}
-{#    {{ inline_admin_formset.formset.non_form_errors }}#}
-{#    {{ inline_admin_formset.opts.model.opts.order_with_respect_to }}#}
+    {{ inline_admin_formset.formset.management_form }}
+    {{ inline_admin_formset.formset.non_form_errors }}
+    {{ inline_admin_formset.opts.model.opts.order_with_respect_to }}
     <div class="items"> <!-- table, sortable container -->
         <div class="legend"> <!-- table header -->
             {% for field in inline_admin_formset.fields %}
@@ -42,9 +50,9 @@
                                     {% if field.is_readonly %}
                                         {{ field.contents }}
                                     {% else %}
-{#                                        {{ field.field }}#}
+                                        {{ field.field }}
+                                        {{ field.field.errors.as_ul }}
                                     {% endif %}
-                                    {{ field.field.errors.as_ul }}
                                 </div>
                             {% endfor %}
                         {% endfor %}

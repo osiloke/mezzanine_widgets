@@ -5,10 +5,7 @@ from widget.models import Widget
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-#class WidgetAdminForm(forms.ModelForm):
-#    def __init__(self, *args, **kwargs):
-#        super(WidgetAdminForm, self).__init__(*args, **kwargs)
-#        self.fields['widget_class'] = PageWidgetClassField()
+
 class OptionEntryAdmin(TabularDynamicInlineAdmin):
     model = WidgetOptionEntry
 

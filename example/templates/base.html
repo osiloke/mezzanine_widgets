@@ -1,4 +1,4 @@
-{% load pages_tags mezzanine_tags i18n %}
+{% load pages_tags mezzanine_tags widget_tags i18n %}
 <html>
 <head>
 
@@ -58,6 +58,7 @@
     <div id="grid-right" class="grid_3 grid">
         {% include "includes/search.html" %}
         {% block right_panel %}
+            {% render_widgets "grid_right" %}
             {% if "mezzanine.twitter"|is_installed %}
             {% include "twitter/tweets.html" %}
             {% endif %}

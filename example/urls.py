@@ -13,6 +13,7 @@ admin.autodiscover()
 urlpatterns = patterns("",
     ("^admin/", include(admin.site.urls)),
     url("^$", direct_to_template, {"template": "index.html"}, name="home"),
+    ("^widget/", include("widget.urls")),
     # ADD YOUR OWN URLPATTERNS *ABOVE* THE LINE BELOW.
     # ``mezzanine.urls`` INCLUDES A *CATCH ALL* PATTERN
     # FOR PAGES, SO URLPATTERNS ADDED BELOW ``mezzanine.urls``

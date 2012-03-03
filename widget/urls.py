@@ -6,4 +6,5 @@ urlpatterns = patterns('widget.views',
     url(r'^list/$', "widget_list", name="widget_list"),
     url(r'^success/$', "create_success", name="create_success"),
     url(r'^edit/(?P<widget>[\w]+)/$', "edit_widget", name="edit_widget"),
+    url(r'^options/(?P<type>[\w]+)/$', "widget_options", name="widget_options"),
 )

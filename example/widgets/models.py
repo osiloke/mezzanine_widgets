@@ -1,3 +1,6 @@
-from django.db import models
+from widget.models import WidgetModel
+from mezzanine.core.models import RichText
 
-# Create your models here.
+
+class HtmlContent(WidgetModel, RichText):
+    pass
