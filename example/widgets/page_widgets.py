@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from widget import widget_pool
-from widget.models import WidgetClassBase
+from widget.models import WidgetClassBase, WidgetOption as opt
 
 from models import HtmlContent
 
@@ -9,7 +9,7 @@ from models import HtmlContent
 class BlogListWidget(WidgetClassBase):
     template = "widgets/blogspot.html"
 
-    def render(self, context, slot, queryset):
+    def render(self, context, slot, queryset, **kwargs):
         return context
 
     class Meta:
@@ -20,7 +20,7 @@ class BlogListWidget(WidgetClassBase):
 class SocialLogosWidget(WidgetClassBase):
     template = "widgets/social.html"
 
-    def render(self, context, slot, queryset):
+    def render(self, context, slot, queryset, **kwargs):
         return context
 
     class Meta:
@@ -42,10 +42,19 @@ class SlideWidget(WidgetClassBase):
         author = 'Progweb Team'
 
 
-class TwitterLinksWidget(WidgetClassBase):
-    pass
+class TwitterMentionsWidgets(WidgetClassBase):
+    "Displays recent messages for a twitter account, Uses"
+    template = "widgets/twitter_mentions.html"
+
+    options = [
+        opt(name="Username"),
+    ]
+    class Meta:
+        name = "Twitter Mentions"
+        author = 'Progweb Team'
 
 
 widget_pool.register_widget(BlogListWidget)
 widget_pool.register_widget(SlideWidget)
 widget_pool.register_widget(SocialLogosWidget)
+widget_pool.register_widget(TwitterMentionsWidgets)

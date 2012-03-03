@@ -45,9 +45,9 @@ class RenderWidgets(InclusionTag):
                                        "widgetslot":slot})
             context['widget_form'] = form
 
-        except Exception:
+        except Exception, e:
             'This is probably not a page so no widgets?'
-            raise
+            raise e
         return context
 
 register.tag(RenderWidgets)

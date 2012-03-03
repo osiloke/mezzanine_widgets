@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load mezzanine_tags keyword_tags %}
+{% load mezzanine_tags keyword_tags widget_tags %}
 
 {% block meta_title %}{{ page.title }}{% endblock %}
 
@@ -20,4 +20,5 @@
 {% endblock %}
 
 {% block main %}
+{% render_widgets "main" %}
 {% endblock %}

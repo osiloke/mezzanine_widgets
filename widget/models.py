@@ -44,7 +44,7 @@ class WidgetClassBase(object):
         generated context
         """
         try:
-            kwargs = {"context":context, "slot": slot, "queryset": queryset, "options":options}
+            kwargs = {"context": context, "slot": slot, "queryset": queryset, "options": options}
             context = self.render(**kwargs)
         except Exception, e:
             raise e
