@@ -27,7 +27,7 @@ used for django admin.
 USAGE
 =====
 The widget app searches all apps in loaded in django for a file named `page_widgets.py`. This file contains code which describe
-how a widget should be rendered. An example widget which displays the addthis links is shown below:
+how a widget should be rendered. An example widget which displays the addthis links is shown below::
 
     class SocialLogosWidget(WidgetClassBase):
         template = "widgets/social.html"
@@ -41,7 +41,7 @@ how a widget should be rendered. An example widget which displays the addthis li
 
 This widget just renders the social.html template which contains the addthis links.
 
-Widgets can also have options. A widget which shows mentions of a twitter user is shown below:
+Widgets can also have options. A widget which shows mentions of a twitter user is shown below::
 
     class TwitterMentionsWidgets(WidgetClassBase):
         "Displays recent messages for a twitter account, Uses"
