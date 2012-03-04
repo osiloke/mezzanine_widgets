@@ -28,7 +28,7 @@ setup(
     long_description=open('README.rst').read(),
     zip_safe=False,
     include_package_data=True,
-    packages=find_packages(), 
+    packages=find_packages(exclude=('example',)),
     install_requires=[
                 "django >= 1.3",
                 "mezzanine",
