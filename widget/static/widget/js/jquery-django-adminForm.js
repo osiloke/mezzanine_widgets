@@ -3,7 +3,7 @@
         return form.find(":input:visible:not(:button)");
     }
 
-    $.widget("adminForm",
+    $.widget("easyadmin.adminForm",
         {
         options: {
             preSubmit:null,

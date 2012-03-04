@@ -1,0 +1,24 @@
+.widget-toolbar{
+    margin-bottom: 5px;
+}
+
+/* FORM consistent with mezzanine editable form, Should really be a general frontend admin form layout */
+
+.frontend-admin-form {padding:20px; background:#fffcc3; border:1px solid #000;
+    -moz-box-shadow: 0 0 20px #222; -webkit-box-shadow: 0 0 20px #222;
+    line-height:1em; border-radius:5px;}
+.frontend-admin-form table, .editable-form textarea, .editable-form input {
+    width: 100%; margin: .5em 0;}
+.frontend-admin-form .booleanfield {width: auto;}
+.frontend-admin-form input.datetimefield {width: 80px; margin-left: 8px;}
+.frontend-admin-form select {width:auto;}
+.frontend-admin-form input[type="file"] {width: 300px;}
+.frontend-admin-form p {margin: .5em 0 !important; padding: 0 !important;
+    line-height: 0 !important; border: 0 !important;}
+.frontend-admin-form p:first-child {margin-top: 0px;}
+.frontend-admin-form .helptext {font-size: 70%; color: #444; font-style: italic;}
+.frontend-admin-form label {text-transform: capitalize !important;
+    font-weight: bold !important; line-height: 1.1em !important;
+    font-size: 15px !important; color: #000 !important; float:none;}
+.frontend-admin-form .btn {width:auto; cursor:pointer; float:right;
+    margin:15px 0 0 15px; padding:5px 15px;}
