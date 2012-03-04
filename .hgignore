@@ -3,3 +3,4 @@ uploads
 *.pyc
 .idea
 *.db
+.git
