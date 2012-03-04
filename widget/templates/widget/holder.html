@@ -2,17 +2,20 @@
 {% load mezzanine_tags %}
 
 
-<div class="widget_wrapper" id="{{ slot }}">
+<div class="widget-wrapper" id="{{ slot }}">
     {% if request.user.is_staff %}
-    <a class="widget-form-link" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>
+    <div class="widget-toolbar">
+        <a class="widget-add-link label-success label" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>
+    </div>
     {% endif %}
     {% if widgets and contains_widgets %}
-    <div id="widgets-sortable">
+    <div id="widget-sortable">
     {% for w in widgets %}
-        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}_widget_holder" class="ui-state-default widget_holder">
+        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder">
             {{ w.content|safe }}
             {% if request.user.is_staff %}
-            <a id="ew-{{ w.widget.id }}" class="widget-edit-link" href="#edit-widget" rel="#edit-widget-form">{% trans "Edit " %}</a>
+            <a id="ew-{{ w.widget.id }}" class="widget-edit-link label-warning label" href="#edit-widget" rel="#edit-widget-form">{% trans "Edit " %}</a>
+                <a id="dw-{{ w.widget.id }}" class="widget-edit-link label-error label" href="{% url delete-widget: w.id %}">{% trans "Delete " %}</a>
             {% endif %}
         </div>
     {%  endfor %}

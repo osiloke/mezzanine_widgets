@@ -1,12 +1,4 @@
 {% load adminmedia mezzanine_tags i18n %}
-<script type="text/javascript"
-        src="{{ STATIC_URL }}widget/js/widget.js"></script>
-
-<script type="text/javascript">
-    $(function() {
-        WidgetAdmin.setupAdmin();
-    });
-</script>
 <div class="inline-group inline-tabular{% if inline_admin_formset.opts.sortable %} sortable{% endif %}{% if inline_admin_formset.opts.classes %} {{ inline_admin_formset.opts.classes|join:" " }}{% endif %}" name="inlinegrouptabular">
     <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
     <ul class="inline-item-tools">

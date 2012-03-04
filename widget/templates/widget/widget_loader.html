@@ -1,5 +1,23 @@
 {% if request.user.is_staff %}
 <script type="text/javascript"
+    src="{{ STATIC_URL }}widget/js/underscore.min.js">
+</script>
+<script type="text/javascript"
+    src="{{ STATIC_URL }}widget/js/jquery-ui-1.8.18.custom.min.js">
+</script>
+<script type="text/javascript"
+    src="{{ STATIC_URL }}widget/js/jquery-django-adminForm.js">
+</script>
+<script type="text/javascript"
+    src="{{ STATIC_URL }}widget/js/widget.js"></script>
+
+<script type="text/javascript">
+    $(function() {
+        var WidgetController = new WidgetAdmin();
+        WidgetController.setupWidgetForms();
+    });
+</script>
+<link rel="stylesheet" href="{{ STATIC_URL }}widget/css/widget.css">
 {% include "widget/widget_form.html" %}
 {% include "widget/edit_widget_form.html" %}
 {% endif %}
