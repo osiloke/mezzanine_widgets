@@ -1,9 +1,8 @@
 
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template.base import Template
-from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 
@@ -13,8 +12,7 @@ from mezzanine.utils.views import is_editable
 
 from widget.utilities import  LazyEncoder, ajax_view
 from widget.forms import WidgetForm, WidgetOptionsForm
-from widget.widget_pool import get_all_page_widgets,\
-                                                get_widget, WidgetNotFound, get_widget_options, WidgetHasNoOptions
+from widget.widget_pool import get_all_page_widgets, get_widget, WidgetHasNoOptions
 from widget.utilities import admin_can
 from widget.models import Widget
 from widget.utilities import ajaxerror
@@ -169,7 +167,7 @@ def widget_options(request, type):
     try:
         options_form = WidgetOptionsForm(type)
         ctx = RequestContext(request)
-        o = get_template("widget/options.html", ctx)
+        o = get_template("widget/options.html")
         ctx.update({'options_form': options_form,
                     'widget_class': options_form.widget_class })
 

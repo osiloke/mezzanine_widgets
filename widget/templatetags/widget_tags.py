@@ -1,11 +1,4 @@
-"""
-   =====
- ::     ::
-  =====
- !!   !!
-=
-Copywright ProgWeb Technologies 2011
-"""
+
 from classytags.core import  Options, Tag
 from classytags.helpers import InclusionTag
 from classytags.arguments import Argument, KeywordArgument
@@ -29,25 +22,22 @@ class RenderWidgets(InclusionTag):
 
     def get_context(self, context, slot):
         page = context.get('page', None)
-        try:
-            context['slot'] = slot
-            user = context['request'].user
-            rendered = render_widgets_for_slot(slot, context)
-            if rendered:
-                context['widgets'] = rendered
-                context['contains_widgets'] = True
-            else:
-                context['widgets'] = [{'widget':Widget()}]
-                context['contains_widgets'] = False
-            #add widget list form for adding new widgets
-            form = WidgetForm(initial={"page":page,
-                                       "user":user,
-                                       "widgetslot":slot})
-            context['widget_form'] = form
 
-        except Exception, e:
-            'This is probably not a page so no widgets?'
-            raise e
+        context['slot'] = slot
+        user = context['request'].user
+        rendered = render_widgets_for_slot(slot, context)
+        if rendered:
+            context['widgets'] = rendered
+            context['contains_widgets'] = True
+        else:
+            context['widgets'] = [{'widget':Widget()}]
+            context['contains_widgets'] = False
+        #add widget list form for adding new widgets
+        form = WidgetForm(initial={"page":page,
+                                   "user":user,
+                                   "widgetslot":slot})
+        context['widget_form'] = form
+
         return context
 
 register.tag(RenderWidgets)

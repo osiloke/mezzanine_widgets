@@ -50,7 +50,7 @@ Widgets can also have options. A widget which shows mentions of a twitter user i
         template = "widgets/twitter_mentions.html"
 
         options = [
-            opt(name="Twitter Name"), #The twitter user to use
+            opt(name="Tag"), #The twitter tag to list
         ]
         class Meta:
             name = "Twitter Mentions"

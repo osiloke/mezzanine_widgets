@@ -47,8 +47,12 @@ class TwitterMentionsWidgets(WidgetClassBase):
     template = "widgets/twitter_mentions.html"
 
     options = [
-        opt(name="Username"),
+        opt(name="Tag"),
     ]
+
+    def render(self, context, **kwargs):
+        return context
+
     class Meta:
         name = "Twitter Mentions"
         author = 'Progweb Team'
