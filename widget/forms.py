@@ -3,7 +3,7 @@ from os.path import join
 
 from django import forms
  
-from widget.widget_pool import get_widget_options
+from widget.widget_pool import get_widget_options, WidgetHasNoOptions
 from widget.models import WidgetOptionEntry, Widget
 
 from mezzanine.pages.models import Page
@@ -47,36 +47,40 @@ class WidgetOptionsForm(forms.Form):
         #get widget options from widget_class
         super(WidgetOptionsForm, self).__init__(*args, **kwargs)
         self.widget_class = widget_class
-        self.form_fields = get_widget_options(widget_class)
+        try:
+            self.form_fields = get_widget_options(widget_class)
+        except WidgetHasNoOptions:
+            return None
+
         if self.form_fields:
             self.hasOptions = True
-        for field in self.form_fields:
-            field_key = "option_%s" % field.name
-            field_class = fields.CLASSES[field.field_type]
-            field_widget = fields.WIDGETS.get(field.field_type)
-            field_args = {"label": field.name, "required": field.required,
-                          "help_text": field.help_text}
-            arg_names = field_class.__init__.im_func.func_code.co_varnames
-            field_args.update(field.field_args)
+            for field in self.form_fields:
+                field_key = "option_%s" % field.name
+                field_class = fields.CLASSES[field.field_type]
+                field_widget = fields.WIDGETS.get(field.field_type)
+                field_args = {"label": field.name, "required": field.required,
+                              "help_text": field.help_text}
+                arg_names = field_class.__init__.im_func.func_code.co_varnames
+                field_args.update(field.field_args)
 
-            if "max_length" in arg_names:
-                field_args["max_length"] = settings.FORMS_FIELD_MAX_LENGTH
-            if field_widget is not None:
-                field_args["widget"] = field_widget
-            self.fields[field_key] = field_class(**field_args)
-            css_class = field_class.__name__.lower()
-            if field.required:
-                css_class += " required"
-                if (settings.FORMS_USE_HTML5 and
-                    field.field_type != fields.CHECKBOX_MULTIPLE):
-                    self.fields[field_key].widget.attrs["required"] = ""
-            self.fields[field_key].widget.attrs["class"] = css_class
-            try:
-                if field.placeholder_text and not field.default:
-                    text = field.placeholder_text
-                    self.fields[field_key].widget.attrs["placeholder"] = text
-            except:
-                pass
+                if "max_length" in arg_names:
+                    field_args["max_length"] = settings.FORMS_FIELD_MAX_LENGTH
+                if field_widget is not None:
+                    field_args["widget"] = field_widget
+                self.fields[field_key] = field_class(**field_args)
+                css_class = field_class.__name__.lower()
+                if field.required:
+                    css_class += " required"
+                    if (settings.FORMS_USE_HTML5 and
+                        field.field_type != fields.CHECKBOX_MULTIPLE):
+                        self.fields[field_key].widget.attrs["required"] = ""
+                self.fields[field_key].widget.attrs["class"] = css_class
+                try:
+                    if field.placeholder_text and not field.default:
+                        text = field.placeholder_text
+                        self.fields[field_key].widget.attrs["placeholder"] = text
+                except:
+                    pass
 
     def save(self, widget=None, **kwargs):
         """

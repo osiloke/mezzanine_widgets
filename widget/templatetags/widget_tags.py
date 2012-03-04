@@ -4,9 +4,12 @@ from classytags.helpers import InclusionTag
 from classytags.arguments import Argument, KeywordArgument
 
 from django import template
-from django.template import  Context
+from django.core.urlresolvers import reverse
+from django.db.models.base import Model
+from django.template.loader import get_template_from_string
 
 from widget.models import Widget
+from widget.utilities import can
 from widget.widget_renderer import render_widgets_for_slot
 from widget.forms import  WidgetForm
 
@@ -61,6 +64,7 @@ class edit_widget(Tag):
     def get_context(self, widget):
         "create initial options"
         return '<a href="#" id="%s" rel="#edit-widget-form">Edit</a>' % (widget.id)
+
 
 @register.inclusion_tag("widget/widget_loader.html", takes_context=True)
 def widget_loader(context):

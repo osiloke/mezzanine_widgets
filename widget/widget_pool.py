@@ -65,7 +65,7 @@ def get_all_page_widgets():
     return listes
 
 def get_widget_array():
-    return page_widgets
+    return [w for w in page_widgets]
 
 def get_page_widgets_for_slot(widget):
     pass

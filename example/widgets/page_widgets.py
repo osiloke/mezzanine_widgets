@@ -59,6 +59,6 @@ class TwitterMentionsWidgets(WidgetClassBase):
 
 
 widget_pool.register_widget(BlogListWidget)
-widget_pool.register_widget(SlideWidget)
+#widget_pool.register_widget(SlideWidget)
 widget_pool.register_widget(SocialLogosWidget)
 widget_pool.register_widget(TwitterMentionsWidgets)

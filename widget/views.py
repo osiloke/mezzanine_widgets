@@ -67,7 +67,7 @@ def edit_widget(request, widget):
                 elif request.GET["widget_class"]:
                     options_form = WidgetOptionsForm(request.GET["type"])
 
-                o = get_template("widget/options.html", ctx)
+                o = get_template("widget/options.html")
                 ctx.update({'options_form': options_form})
 
                 options = o.render(ctx)
@@ -103,7 +103,7 @@ def widget_list(request):
             "Widget has options, lets generate the options form"
             options_form = WidgetOptionsForm(widget_class)
             if widget_form.is_valid():
-                o = get_template("widget/options.html", ctx)
+                o = get_template("widget/options.html")
                 ctx.update({'options_form': options_form,
                             'widget_class': widget_class_obj })
 
@@ -161,6 +161,15 @@ def create_widget(request):
 create_widget = require_POST(create_widget)
 
 
+@admin_can(Widget)
+def delete_widget(request, id):
+    try:
+        widget = Widget.objects.get(id=id)
+        widget.delete()
+    except Exception:
+        pass
+
+
 @ajax_view()
 @admin_can(Widget)
 def widget_options(request, type):
@@ -177,6 +186,7 @@ def widget_options(request, type):
         data = {"valid": False, "error": "None"}
 
     return data
+
 
 @admin_can(Widget)
 def create_success(request):

@@ -21,10 +21,10 @@ CLASSIFIERS = [
 setup(
     name='Mezzanine Widgets',
     author='Osiloke Emoekpere',
-    version='0.0.9dev',
-    url='http://osiloke.com',
+    version='0.1.0dev',
+    url='http://osiloke.blogspot.com',
     license='BSD',
-    description="An app which makes it possible to create and add widgets to mezzanine pages.",
+    description="Makes it super easy to add extra content to mezzanine pages and also add extended functionality. Check out the example app.",
     long_description=open('README.rst').read(),
     zip_safe=False,
     include_package_data=True,

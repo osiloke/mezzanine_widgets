@@ -1,7 +1,3 @@
-NOTE:
-=========
-This app was pulled out of an existing project i have, and as a result some features may not work yet (e.g Frontend widget adding).
-
 OVERVIEW
 =========
 This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget,
@@ -9,18 +5,17 @@ custom text, custom html to mezzanine pages without modifying templates or imple
 
 Requirements
 ============
-mezzanine 1.0
+mezzanine 1.0 (I'm not sure if 1.0 is backwards compatible)
 django-classy-tags
 
 METHODOLOGY
 ===========
-
 Widgets are placed in the specified slot. Slots are just placeholders inside django templates where widgets are rendered.
 They are not stored in the database. As a result, a template designer does not worry about syncing the database
 every time he wants to create a `slot` in a template. On the other hand, the end user must be aware of the `slots` available for
 widgets.
 
-Widget Classes contain the logic used to render each widget and are dynamically loaded at runtime using the same autoloading logic
+Widget Classes contain the logic used to render each widget and are dynamically loaded at runtime using the same autoloading magic
 used for django admin.
 
 USAGE
@@ -57,21 +52,35 @@ Widgets can also have options. A widget which shows mentions of a twitter user i
             author = 'Progweb Team'
 
 
+Widgets are not used in the application until they are registered::
+
+    widget_pool.register_widget(SocialLogosWidget)
+    widget_pool.register_widget(TwitterMentionsWidgets)
+
+
 Rendering
 ---------
-Render widgets on a page by first including the widget tag library.
+Render widgets on a page by first including the widget tag library.::
 
 	{% load widget_tags %}
 
-You will need to load the javascript code which is used to manipulate widgets. The following should go in your base template.
+You will need to load the javascript code which is used to manipulate widgets. The following should go in your base template.::
 
     {% widget_loader %}
 
-The following snippet will render widgets which are assigned to the footer slot.
+The following snippet will render widgets which are assigned to the footer slot.::
 
 	{% render_widgets "footer" %}
 
+
+Adding Widgets
+--------------
+It is really easy to add widgets from the frontend site. Just look for the `Add Widget` link and click it. You will get a
+list of widgets to choose from. If the widget has options, you will be able to enter them. Try adding the twitter mentions widget.
+
 TODO
 ====
-* Allow widgets to be assigned to slots from frontend (Currently porting code from my other project).
-  This would eliminate the need to go through the backend.
+* Better presentation of widget list in frontend.
+* Utilize more of bootstrap
+* Fix edit widget function
+* Sorting and swapping widgets

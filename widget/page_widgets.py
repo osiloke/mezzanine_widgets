@@ -18,8 +18,9 @@ class TestWidget(WidgetClassBase):
         return context
 
     class Meta:
+        hide = True
         page_less = True
         name = _("Test")
         author = 'Osiloke Emoekpere'
 
-widget_pool.register_widget(TestWidget)
+#widget_pool.register_widget(TestWidget)

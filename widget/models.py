@@ -1,5 +1,4 @@
 from datetime import datetime
-from string import lower
 
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
@@ -55,6 +54,7 @@ class WidgetClassBase(object):
     def render(self, **kwargs):
         raise NotImplementedError("Render function needs to be implemented")
 
+
 class WidgetModel(models.Model):
     widget = models.ForeignKey('widget.Widget')
 
@@ -71,7 +71,7 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
 class Widget(Orderable, Ownable):
     display_title = models.CharField(default=None, verbose_name="Title", max_length=255, \
         null=False)
-    widget_class = PageWidgetClass(default="", verbose_name="Type")
+    widget_class = PageWidgetClass(default="", verbose_name="Widget Type")
     active = models.BooleanField(default=True)
     widget_file_title = models.CharField(max_length=255, editable=False)
     author = models.CharField(max_length=255, editable=False)
@@ -135,6 +135,7 @@ class Widget(Orderable, Ownable):
                                         ugettext("View on site"))
     admin_link.allow_tags = True
     admin_link.short_description = ""
+
 
     class Meta:
         verbose_name = _("Widget")
