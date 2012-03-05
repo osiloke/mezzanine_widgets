@@ -85,6 +85,16 @@ Adding Widgets
 It is really easy to add widgets from the frontend site. Just look for the `Add Widget` link and click it. You will get a
 list of widgets to choose from. If the widget has options, you will be able to enter them. Try adding the twitter mentions widget.
 
+Example Project
+===============
+Install the widgets app by running::
+
+python setup.py install
+
+Change directory to the example app and run::
+
+python manage.py createdb --noinput
+
 TODO
 ====
 * Better presentation of widget list in frontend.
