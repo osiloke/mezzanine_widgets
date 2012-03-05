@@ -174,18 +174,22 @@ def admin_can(model, action="add", fail404=False):
     def _dec(view):
         def _view(request, *args, **kwargs):
             redirect_field_name = "next"
+            url = None
+            if redirect_field_name \
+                and redirect_field_name in request.REQUEST:
+                url = request.REQUEST[redirect_field_name]
+            if not url:
+                url = "/"
             if not can(action, model, request):
                 if fail404:
                     raise Http404
-                url = None
-                if redirect_field_name \
-                    and redirect_field_name in request.REQUEST:
-                    url = request.REQUEST[redirect_field_name]
-                if not url:
-                    url = "/"
                 return HttpResponseRedirect(url)
             else:
-                return view(request, *args, **kwargs)
+                response = view(request, *args, **kwargs)
+                if not type(response) is HttpResponse:
+                    return HttpResponseRedirect(url)
+                else:
+                    return response
 
         _view.__name__ = view.__name__
         _view.__dict__ = view.__dict__

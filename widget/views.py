@@ -161,11 +161,11 @@ def create_widget(request):
 create_widget = require_POST(create_widget)
 
 
-@admin_can(Widget)
-def delete_widget(request, id):
+@admin_can(Widget, action="change")
+def delete_widget(request, widget):
     try:
-        widget = Widget.objects.get(id=id)
-        widget.delete()
+        obj = Widget.objects.get(id=widget)
+        obj.delete()
     except Exception:
         pass
 

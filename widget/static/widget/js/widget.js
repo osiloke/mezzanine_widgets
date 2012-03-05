@@ -104,30 +104,37 @@
     };
 
     WidgetAdmin.prototype.resultParsed = function(e, params) {
-      var action, back, close, data, form, listSet, optSet, resetForm;
+      var action, back, close, data, doer, form, listSet, optHolder, optSet, resetForm;
       if (params.status === true) {
         location.reload();
       } else {
         form = params.form;
         data = params.data.data;
+        listSet = form.find('fieldset#widget-list');
+        optSet = form.find('fieldset#widget-options');
+        optHolder = form.find('fieldset#widget-options').find(".options");
         back = form.find("input[name=back]");
         close = form.find("input[name=close]");
+        doer = form.find("input[name=do]");
         action = form.get(0).getAttribute("action");
         resetForm = function(form) {
-          var listSet;
-          listSet = form.find('#id_widget_class').parent();
+          listSet = form.find('fieldset#widget-list');
+          optSet = form.find('fieldset#widget-options');
+          optHolder = form.find('fieldset#widget-options').find(".options");
           form.hide();
           listSet.show();
-          optSet.empty().hide();
+          optHolder.empty();
+          optSet.hide();
+          optSet.find("legend").val("Configure this Widget");
           form.get(0).setAttribute("action", action);
-          return back.hide();
+          back.hide();
+          return doer.val("Choose");
         };
         switch (params.data.type) {
           case "fi":
-            listSet = form.find('#id_widget_class').parent();
-            optSet = form.find('fieldset#widget-options');
             listSet.hide();
-            optSet.prepend(data);
+            doer.val("Save");
+            optHolder.prepend(data);
             optSet.show();
             form.get(0).setAttribute("action", "/widget/create/");
             back.show();
@@ -141,6 +148,9 @@
             });
             break;
           case "nf":
+            break;
+          default:
+            optSet.find("legend").val("You are done! Click save");
             this;
         }
       }

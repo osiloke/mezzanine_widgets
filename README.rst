@@ -45,8 +45,13 @@ Widgets can also have options. A widget which shows mentions of a twitter user i
         template = "widgets/twitter_mentions.html"
 
         options = [
-            opt(name="Tag"), #The twitter tag to list
+            opt(name="Tag", required=True, help_text="#Tag to list"),
+            opt(name="Limit", default=3, help_text="Number of tweets to show"),
         ]
+
+        def render(self, context, **kwargs):
+            return context
+
         class Meta:
             name = "Twitter Mentions"
             author = 'Progweb Team'
@@ -56,6 +61,8 @@ Widgets are not used in the application until they are registered::
 
     widget_pool.register_widget(SocialLogosWidget)
     widget_pool.register_widget(TwitterMentionsWidgets)
+
+The template variable can either be the path to a template file or a string with the template definition
 
 
 Rendering

@@ -1,7 +1,8 @@
 {% load twitter_tags mezzanine_tags i18n %}
 {% if "mezzanine.twitter"|is_installed %}
-{% with opts.tag as hash_tag %}
-    {% tweets_for_search hash_tag 3 as tweets %}
+{% with opts.Tag as hash_tag %}
+    {% with opts.Limit as lim %}
+    {% tweets_for_search hash_tag lim as tweets %}
     {% if tweets %}
     <h3>{% trans "Recent Tweets" %} tagged with {{ hash_tag }}</h3>
     <ul class="unstyled tweets">
@@ -20,7 +21,10 @@
         </li>
         {% endfor %}
     </ul>
+    {% else %}
+        <span>No Tweets</span>
     {% endif %}
+    {% endwith %}
 {% endwith %}
 {% endif %}
 

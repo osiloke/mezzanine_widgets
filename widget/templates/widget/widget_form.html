@@ -17,11 +17,11 @@
         {% endfor %}
     </fieldset>
     <fieldset id="widget-options" style="display:none;border:none;" >
-    <legend>Configure this Widget</legend>
-    {{ options }}
+    <legend >Configure this Widget</legend>
+    <div class="options">{{ options }}</div>
     </fieldset>
     <input type="button" name="close" value="{% trans "Close" %}" class="btn" />
     <input type="submit" style="display:none;" name="back" value="{% trans "Back" %}" class="btn" />
-    <input type="submit" value="{% trans "Choose" %}" class="btn btn-success" />
+    <input type="submit" name="do" value="{% trans "Choose" %}" class="btn btn-success" />
 </form>
 {% endwith %}

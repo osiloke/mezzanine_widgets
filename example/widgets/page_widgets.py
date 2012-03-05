@@ -6,8 +6,30 @@ from widget.models import WidgetClassBase, WidgetOption as opt
 from models import HtmlContent
 
 
+class QuickBlogWidget(WidgetClassBase):
+    """
+    Example of a widget with inline template
+    """
+
+
+    template = '''
+    {% load i18n mezzanine_tags blog_tags keyword_tags disqus_tags %}
+
+    {% quick_blog %}
+    '''
+    raw = True
+
+    def render(self, context, slot, queryset, **kwargs):
+        return context
+
+    class Meta:
+        name = _("Quick Blog")
+        author = 'Progweb Team'
+
+
 class BlogListWidget(WidgetClassBase):
-    template = "widgets/blogspot.html"
+    template = "widgets/blogposts.html"
+
 
     def render(self, context, slot, queryset, **kwargs):
         return context
@@ -47,7 +69,8 @@ class TwitterMentionsWidgets(WidgetClassBase):
     template = "widgets/twitter_mentions.html"
 
     options = [
-        opt(name="Tag"),
+        opt(name="Tag", required=True, help_text="#Tag to list"),
+        opt(name="Limit", default=3, help_text="Number of tweets to show"),
     ]
 
     def render(self, context, **kwargs):
@@ -59,6 +82,6 @@ class TwitterMentionsWidgets(WidgetClassBase):
 
 
 widget_pool.register_widget(BlogListWidget)
-#widget_pool.register_widget(SlideWidget)
+widget_pool.register_widget(QuickBlogWidget)
 widget_pool.register_widget(SocialLogosWidget)
 widget_pool.register_widget(TwitterMentionsWidgets)

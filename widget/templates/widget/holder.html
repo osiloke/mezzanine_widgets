@@ -5,18 +5,22 @@
 <div class="widget-wrapper" id="{{ slot }}">
     {% if request.user.is_staff %}
     <div class="widget-toolbar">
-        <a class="widget-add-link label-success label" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>
+       {% if page %} <a class="widget-add-link label-success label" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>{% endif %}
     </div>
     {% endif %}
     {% if widgets and contains_widgets %}
     <div id="widget-sortable">
     {% for w in widgets %}
+        {% if request.user.is_staff %}
+        <div class="btn-toolbar">
+        <span class="widget-item-toolbar btn-group">
+            <a id="ew-{{ w.widget.id }}" class="widget-edit-link btn btn-small" href="#edit-widget" rel="#edit-widget-form"><i class="icon-edit"></i>{% trans "Edit Widget" %}</a>
+            <a id="dw-{{ w.widget.id }}" class="widget-delete-link btn btn-small" href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i>{% trans "Delete " %}</a>
+        </span>
+        </div>
+        {% endif %}
         <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder">
             {{ w.content|safe }}
-            {% if request.user.is_staff %}
-            <a id="ew-{{ w.widget.id }}" class="widget-edit-link label-warning label" href="#edit-widget" rel="#edit-widget-form">{% trans "Edit " %}</a>
-                <a id="dw-{{ w.widget.id }}" class="widget-edit-link label-error label" href="{% url delete-widget: w.id %}">{% trans "Delete " %}</a>
-            {% endif %}
         </div>
     {%  endfor %}
     </div>

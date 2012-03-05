@@ -2,6 +2,9 @@
     margin-bottom: 5px;
 }
 
+.widget_holder{
+    border-bottom: #2D2D2D solid thick;
+}
 /* FORM consistent with mezzanine editable form, Should really be a general frontend admin form layout */
 
 .frontend-admin-form {padding:20px; background:#fffcc3; border:1px solid #000;

@@ -67,47 +67,56 @@ class @WidgetAdmin
     @
 
   resultParsed: (e, params) ->
-    if params.status == true
-      location.reload()
-    else
-      form = params.form
-      data = params.data.data
-      back = form.find("input[name=back]")
-      close = form.find("input[name=close]")
-      action = form.get(0).getAttribute("action")
-      resetForm = (form) ->
-        listSet = form.find('#id_widget_class').parent()
-        form.hide()
-        listSet.show()
-        optSet.empty().hide()
-        form.get(0).setAttribute("action", action)
-        back.hide()
+      if params.status == true
+        location.reload()
+      else
+        form = params.form
+        data = params.data.data
+        listSet = form.find('fieldset#widget-list')
+        optSet = form.find('fieldset#widget-options')
+        optHolder = form.find('fieldset#widget-options').find(".options")
+        back = form.find("input[name=back]")
+        close = form.find("input[name=close]")
+        doer = form.find("input[name=do]")
+        action = form.get(0).getAttribute("action")
+        resetForm = (form) ->
+           listSet = form.find('fieldset#widget-list')
+           optSet = form.find('fieldset#widget-options')
+           optHolder = form.find('fieldset#widget-options').find(".options")
+           form.hide()
+           listSet.show()
+           optHolder.empty()
+           optSet.hide()
+           optSet.find("legend").val("Configure this Widget")
+           form.get(0).setAttribute("action", action)
+           back.hide()
+           doer.val("Choose")
+        switch params.data.type
+           when "fi"
+             listSet.hide()
+             doer.val("Save")
+             optHolder.prepend data
+             optSet.show()
+             form.get(0).setAttribute("action", "/widget/create/")
+             back.show()
 
-      switch params.data.type
-        when "fi"
-          listSet = form.find('#id_widget_class').parent()
-          optSet = form.find('fieldset#widget-options')
-          listSet.hide()
-          optSet.prepend data
-          optSet.show()
-          form.get(0).setAttribute("action", "/widget/create/")
-          back.show()
+             back.bind('click', (event) ->
+                 event.preventDefault()
+                 resetForm(form)
+                 form.show()
+             )
 
-          back.bind('click', (event) ->
-              event.preventDefault()
-              resetForm(form)
-              form.show()
-          )
-
-          close.bind('click', (event) ->
-              resetForm(form)
-          )
-        when "nf"
-          @
+             close.bind('click', (event) ->
+                 resetForm(form)
+             )
+           when "nf"
+           else
+             optSet.find("legend").val("You are done! Click save")
+             @
 
 
-    $('#editable-loading').hide()
-    form.show()
+      $('#editable-loading').hide()
+      form.show()
 
-  doFormSave: (event) ->
-    console.log "Form Clicked"
+    doFormSave: (event) ->
+      console.log "Form Clicked"
