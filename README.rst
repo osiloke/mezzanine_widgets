@@ -2,8 +2,7 @@ OVERVIEW
 ========= 
 :Author: Osi Emoekpere (http://osiloke.blogspot.com, http://twitter.com/osilocks)
 
-:info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget,
-custom text, custom html to mezzanine pages.
+:info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget or slideshow to mezzanine pages.
 
 Requirements
 ============
