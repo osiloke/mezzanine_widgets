@@ -4,3 +4,8 @@ uploads
 .idea
 *.db
 .git
+build
+*.egg-info
+*.egg
+*.ropeproject
+*.sublime-*
