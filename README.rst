@@ -1,6 +1,8 @@
 OVERVIEW
-=========
-This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget,
+========= 
+:Author: Osi Emoekpere (http://osiloke.blogspot.com, http://twitter.com/osilocks)
+
+:info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget,
 custom text, custom html to mezzanine pages without modifying templates or implementing a full django app.
 
 Requirements
@@ -17,6 +19,16 @@ widgets.
 
 Widget Classes contain the logic used to render each widget and are dynamically loaded at runtime using the same autoloading magic
 used for django admin.
+
+Setup
+=====
+Add the widget app to your installed apps after all mezzanine apps in your ``settings.py``::
+
+   INSTALLED_APPS = (
+       ...
+       'widget',
+       ...
+   )
 
 USAGE
 =====
@@ -89,7 +101,7 @@ Example Project
 ===============
 Install the widgets app by running::
 
-python setup.py install
+python setup.py install #From the `widget` folder
 
 Change directory to the example app and run::
 
@@ -101,3 +113,4 @@ TODO
 * Utilize more of bootstrap
 * Fix edit widget function
 * Sorting and swapping widgets
+* More render options
