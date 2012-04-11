@@ -4,7 +4,7 @@ DEBUG = True
 DATABASES = {
     "default": {
         # "postgresql_psycopg2", "postgresql", "mysql", "sqlite3" or "oracle".
-        "ENGINE": "sqlite3",
+        "ENGINE": "django.db.backends.sqlite3",
         # DB name or path to database file if using sqlite3.
         "NAME": "mezzanine.db",
         # Not used with sqlite3.

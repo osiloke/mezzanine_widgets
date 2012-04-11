@@ -76,7 +76,7 @@ class Widget(Orderable, Ownable):
     widget_file_title = models.CharField(max_length=255, editable=False)
     author = models.CharField(max_length=255, editable=False)
     acts_on = models.CharField(max_length=255, editable=False)
-    widgetslot = models.CharField(max_length=255, default="none", name="Slot")
+    widgetslot = models.CharField(max_length=255, default="none")
     page_less = models.BooleanField(default=False)
     page = models.ForeignKey(Page, null=True, blank=True)
     status = models.IntegerField(_("Status"),

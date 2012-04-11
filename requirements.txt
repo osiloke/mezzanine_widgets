@@ -1,2 +1,2 @@
-mezzanine==1.0
+mezzanine
 django-classy-tags

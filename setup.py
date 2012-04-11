@@ -37,6 +37,13 @@ template_patterns = [
     'templates/*.html',
     'templates/*/*.html',
     'templates/*/*/*.html',
+    'templates/*/*/*/*.html',
+    'static/widget/css/*',
+    'static/widget/js/*'
+]
+
+static_patterns = [
+    'static/*'
 ]
 
 package_data = dict(
