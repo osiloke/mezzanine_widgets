@@ -48,11 +48,10 @@ def edit_widget(request, **kwargs):
             "This is a request to get a form for widget"
             ctx = RequestContext(request)
             "get widget form populated with widget options" 
-            widget = Widget.objects.get(id=kwargs.get("id"))
-            options = widget.options
-            if options.exists():
+            widget = Widget.objects.get(id=kwargs.get("id")) 
+            if widget.hasOptions:
                 initial = dict(("option_%s" % option.name, option.value) \
-                             for option in options.all())
+                             for option in widget.options.all())
                 options_form = WidgetOptionsForm(widget.widget_class, \
                                 data=initial)
 

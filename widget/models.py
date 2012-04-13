@@ -132,7 +132,12 @@ class Widget(Orderable, Ownable):
 
     @property
     def hasOptions(self):
-        return self.options.exists()
+        try:
+            from widget.widget_pool import get_widget
+            widg = get_widget(self.widget_class)
+            return hasattr(widg, "options")
+        except Exception, e:
+            return False
 
     def admin_link(self):
         return "<a href='%s'>%s</a>" % (self.get_absolute_url(),
