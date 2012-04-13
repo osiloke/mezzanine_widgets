@@ -1,10 +1,5 @@
-.widget-toolbar{
-    margin-bottom: 5px;
-}
-
-.widget_holder{
-    border-bottom: #2D2D2D solid thick;
-}
+.widget-toolbar{margin-bottom: 5px;}
+.widget_holder{border-bottom: #2D2D2D solid thick;}
 /* FORM consistent with mezzanine editable form, Should really be a general frontend admin form layout */
 
 .frontend-admin-form {padding:20px; background:#fffcc3; border:1px solid #000;
@@ -22,6 +17,8 @@
 .frontend-admin-form .helptext {font-size: 70%; color: #444; font-style: italic;}
 .frontend-admin-form label {text-transform: capitalize !important;
     font-weight: bold !important; line-height: 1.1em !important;
-    font-size: 15px !important; color: #000 !important; float:none;}
+    font-size: 15px !important; color: #000 !important;float:none;}
 .frontend-admin-form .btn {width:auto; cursor:pointer; float:right;
     margin:15px 0 0 15px; padding:5px 15px;}
+.frontend-admin-form .controls{margin-bottom: 10px;}
+.frontend-admin-form .controls label{margin-bottom: 10px;}
