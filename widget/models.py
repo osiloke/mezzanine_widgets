@@ -130,6 +130,10 @@ class Widget(Orderable, Ownable):
     def get_class(self):
         return self.widget_class
 
+    @property
+    def hasOptions(self):
+        return self.options.exists()
+
     def admin_link(self):
         return "<a href='%s'>%s</a>" % (self.get_absolute_url(),
                                         ugettext("View on site"))
@@ -152,7 +156,7 @@ class WidgetOptionGroup(models.Model):
     entry_time = models.DateTimeField(_("Date/time"))
 
     def __unicode__(self):
-        return "%s Option Group" % self.widget
+        return '' or "%s Option Group" % self.widget
 
     class Meta:
         verbose_name = _("Widget Option Group")
@@ -171,7 +175,7 @@ class WidgetOptionEntry(models.Model):
     value = models.CharField(max_length=settings.FORMS_FIELD_MAX_LENGTH)
 
     def __unicode__(self):
-        return self.name
+        return '' or self.name
 
     class Meta:
         verbose_name = _("Widget Option entry")

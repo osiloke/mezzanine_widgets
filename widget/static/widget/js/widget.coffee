@@ -30,9 +30,9 @@ class @WidgetAdmin
 
   setupWidgetForms: () =>
     $("#widget-form").adminForm({preSubmit: @preSubmit, resultParsed: @resultParsed})
+    expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
     $.each($('.widget-add-link'), (i) ->
         link = $(this)
-        expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
         onBeforeLoad = () ->
         #set the forms slot input to the current widgetslot
           slot_field = $("#widget-form").find("input[name=widgetslot]").get(0)
@@ -41,30 +41,56 @@ class @WidgetAdmin
         overlay = {onBeforeLoad: onBeforeLoad, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
         link.overlay(overlay)
     )
+    $("#edit-widget-form").adminForm({resultParsed: @onEditData})
+    $('.widget-edit-link').click((e) =>
+        widget_id = e.currentTarget.id.split("-")[1]
+        @onEditForm(e.currentTarget, widget_id)
+    )
     @
 
-  getForm: (e) ->
-    expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
-    overlay = {closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
-    widget_id = $(this).attr("id").split("-")[1]
+  onEditForm: (link, widget_id) ->
+    widget = this
+    editUrl = "/widget/edit/" + widget_id + "/"
     options = {
-    url: "/widget/edit/" + widget_id
-    success: (data) ->
-      $("#edit-widget-form")
-      .adminForm({preSubmit: @preSubmit, resultParsed: @resultParsed})
-      .overlay(overlay)
+      url: editUrl
+      success: (data) ->
+        expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
+        overlay = {load: true, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
+        widget.onEditData(null, data) 
+        $("#edit-widget-form")
+          # .adminForm({data: {id: widget_id}})
+          .get(0)
+          .setAttribute("action", editUrl)
+
+        $(link).overlay(overlay)
+        #The load option doesnt seem to be working
+        #load overlay after binding to the link
+        $(link).overlay(overlay).load()
     }
     $.ajax(options)
+    @
+
+  onEditData: (e, params) ->
+    if params.status == true
+      location.reload()
+    else
+      optHolder = $("#edit-widget-form")
+                      .find('fieldset#widget-options')
+                      .find(".options")
+      switch params.type
+         when "ef"
+           optHolder.empty()
+           optHolder.prepend params.data 
+         else
+            @
     @
 
   preSubmit: (e, form) ->
     form.hide()
     $('#editable-loading').show()
+    #Accomodate tinymce triggers
     if typeof tinyMCE != "undefined"
       tinyMCE.triggerSave()
-
-  editWidget: (event) ->
-    @
 
   resultParsed: (e, params) ->
       if params.status == true

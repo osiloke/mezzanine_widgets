@@ -11,17 +11,23 @@
     {% if widgets and contains_widgets %}
     <div id="widget-sortable">
     {% for w in widgets %}
+    <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder" style="position:relative;">
         {% if request.user.is_staff %}
-        <div class="btn-toolbar">
-        <span class="widget-item-toolbar btn-group">
-            <a id="ew-{{ w.widget.id }}" class="widget-edit-link btn btn-small" href="#edit-widget" rel="#edit-widget-form"><i class="icon-edit"></i>{% trans "Edit Widget" %}</a>
-            <a id="dw-{{ w.widget.id }}" class="widget-delete-link btn btn-small" href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i>{% trans "Delete " %}</a>
-        </span>
-        </div>
+            {% if w.widget.hasOptions %}
+            <div class="btn-toolbar">
+            <span class="widget-item-toolbar btn-group">
+                
+                <a id="ew-{{ w.widget.id }}" class="widget-edit-link btn btn-small" rel="#edit-widget-form" href="#edit-widget" ><i class="icon-edit"></i>{% trans "Configure Widget" %}</a>
+                  
+            </span>
+            </div>
+            {% endif %} 
+        <a style="position: absolute;top: 0;right: 0;" id="dw-{{ w.widget.id }}" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
         {% endif %}
-        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder">
+        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-content">
             {{ w.content|safe }}
         </div>
+    </div>
     {%  endfor %}
     </div>
     {%  endif %}

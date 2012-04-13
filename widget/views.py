@@ -31,51 +31,43 @@ def get_widget_list_for_page(page):
         return None
 
 
-@admin_can(Widget)
-def edit_widget(request, widget):
-    "Generate a form autopopulated with widget option data"
-    if not is_editable(Widget(), request):
-        response = _("Permission denied")
-        data = {
-            'error': [response],
-            'permission': False
-        }
-    else:
-        try:
-            if request.POST:
-                "get form populated with widget options"
-                widget = Widget.objects.get(id=request.POST["widget"])
+@admin_can(Widget, action="change", fail404=True)
+def edit_widget(request, **kwargs):
+    try:
+        if request.POST:
+            "get form populated with widget options"
+            widget = Widget.objects.get(id=kwargs.get("id"))
+            options_form = WidgetOptionsForm(widget.widget_class, \
+                                request.POST)
+            if options_form.is_valid():
+                if options_form.save(widget=widget):
+                    data = {'valid': True, 'form': 'saved'}
+            elif options_form.errors:
+                data = ajaxerror(options_form)
+        else:
+            "This is a request to get a form for widget"
+            ctx = RequestContext(request)
+            "get widget form populated with widget options" 
+            widget = Widget.objects.get(id=kwargs.get("id"))
+            options = widget.options
+            if options.exists():
+                initial = dict(("option_%s" % option.name, option.value) \
+                             for option in options.all())
                 options_form = WidgetOptionsForm(widget.widget_class, \
-                                    request.POST)
-                if options_form.is_valid():
-                    if options_form.save(widget=widget):
-                        data = {'valid': True, 'form': 'saved'}
-                elif options_form.errors:
-                    data = ajaxerror(options_form)
-            elif request.GET:
-                "This is a request to get a form for widget"
-                ctx = RequestContext(request)
-                "get widget form populated with widget options"
-                if request.GET["widget"]:
-                    widget = Widget.objects.get(id=request.GET["id"])
-                    options = widget.options
-                    initial = dict(("option_%s" % k, v) \
-                                 for (k, v) in options.iteritems())
-                    options_form = WidgetOptionsForm(widget.widget_class, \
-                                    data=initial)
-
-                elif request.GET["widget_class"]:
-                    options_form = WidgetOptionsForm(request.GET["type"])
+                                data=initial)
 
                 o = get_template("widget/options.html")
                 ctx.update({'options_form': options_form})
 
                 options = o.render(ctx)
-                data = {'valid': False, 'type': 'nf', 'data': options}
-        except Exception:
-            raise
+                data = {'valid': False, 'type': 'ef', 'data': options}
+            else:
+                data = {'valid': True, 'type': 'nf'}
+
         return HttpResponse(json_serializer.encode(data), \
                             mimetype='application/json')
+    except Exception:
+        raise
 
 
 @admin_can(Widget)
@@ -118,7 +110,7 @@ def widget_list(request):
 
 
 @admin_can(Widget, fail404=True)
-def create_widget(request):
+def create_widget(request, **kwargs):
     """
     Renders widget options based on supplied widget
     class or displays a select screen
@@ -162,9 +154,9 @@ create_widget = require_POST(create_widget)
 
 
 @admin_can(Widget, action="change")
-def delete_widget(request, widget):
+def delete_widget(request, id):
     try:
-        obj = Widget.objects.get(id=widget)
+        obj = Widget.objects.get(id=id)
         obj.delete()
     except Exception:
         pass

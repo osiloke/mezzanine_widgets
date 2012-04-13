@@ -94,8 +94,9 @@ class WidgetOptionsForm(forms.Form):
                 if isinstance(value, list):
                     value = ", ".join([v.strip() for v in value])
                 if value:
+                    value_dict = {"value": value}
                     option, created =  WidgetOptionEntry.objects.get_or_create(
-                                        name=field.name, widget=widget, defaults={"value":value}
-                    )
+                                        name=field.name, widget=widget, **value_dict)#defaults={"value": value}
+                    #)
                     option.save()
         return True

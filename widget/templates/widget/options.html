@@ -1,9 +1,9 @@
 {% for field in options_form %}
-    <p{% if field.is_hidden %} style="display:none;"{% endif %}>
+    <div class="controls" {% if field.is_hidden %} style="display:none;"{% endif %}>
         {{ field.label_tag }}<br />{{ field }}{{ field.errors }}
         {% if field.help_text %}
-        <span class="helptext">{{ field.help_text }}</span>
+        <p class="helptext">{{ field.help_text }}</p>
         {% endif %}
-    </p>
+    </div>
 {% endfor %}
 

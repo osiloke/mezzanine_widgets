@@ -2,7 +2,9 @@
 
 {# Add form #}
 {% with widget_form as form %}
-<form style="display:none;" class="popup-form frontend-admin-form" method="post"
+<form style="display:none;" 
+    class="popup-form frontend-admin-form form-vertical" 
+    method="post"
     action="{% url widget_list %}" id="widget-form"
     {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
@@ -25,3 +27,19 @@
     <input type="submit" name="do" value="{% trans "Choose" %}" class="btn btn-success" />
 </form>
 {% endwith %}
+
+{# Edit Form #}
+<div id="edit_form">
+    <form style="display:none;" 
+        class="popup-form frontend-admin-form form-vertical" 
+        method="post"
+        id="edit-widget-form">
+        {% csrf_token %}
+        <fieldset id="widget-options">
+            <legend >Configure this Widget</legend>
+            <div class="options"></div>
+        </fieldset>
+        <input type="submit" name="submit" value="{% trans "Save" %}" class="btn" />
+        <input type="button" name="close" value="{% trans "Close" %}" class="btn" />
+    </form>
+</div>

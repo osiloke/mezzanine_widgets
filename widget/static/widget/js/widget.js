@@ -36,18 +36,20 @@
     };
 
     WidgetAdmin.prototype.setupWidgetForms = function() {
+      var expose,
+        _this = this;
       $("#widget-form").adminForm({
         preSubmit: this.preSubmit,
         resultParsed: this.resultParsed
       });
+      expose = {
+        color: "#333",
+        loadSpeed: 200,
+        opacity: 0.9
+      };
       $.each($('.widget-add-link'), function(i) {
-        var expose, link, onBeforeLoad, overlay;
+        var link, onBeforeLoad, overlay;
         link = $(this);
-        expose = {
-          color: "#333",
-          loadSpeed: 200,
-          opacity: 0.9
-        };
         onBeforeLoad = function() {
           var slot_field, slot_name;
           slot_field = $("#widget-form").find("input[name=widgetslot]").get(0);
@@ -63,33 +65,62 @@
         };
         return link.overlay(overlay);
       });
+      $("#edit-widget-form").adminForm({
+        resultParsed: this.onEditData
+      });
+      $('.widget-edit-link').click(function(e) {
+        var widget_id;
+        widget_id = e.currentTarget.id.split("-")[1];
+        return _this.onEditForm(e.currentTarget, widget_id);
+      });
       return this;
     };
 
-    WidgetAdmin.prototype.getForm = function(e) {
-      var expose, options, overlay, widget_id;
-      expose = {
-        color: "#333",
-        loadSpeed: 200,
-        opacity: 0.9
-      };
-      overlay = {
-        closeOnEsc: true,
-        expose: expose,
-        closeOnClick: true,
-        close: ':button'
-      };
-      widget_id = $(this).attr("id").split("-")[1];
+    WidgetAdmin.prototype.onEditForm = function(link, widget_id) {
+      var editUrl, options, widget;
+      widget = this;
+      editUrl = "/widget/edit/" + widget_id + "/";
       options = {
-        url: "/widget/edit/" + widget_id,
+        url: editUrl,
         success: function(data) {
-          return $("#edit-widget-form").adminForm({
-            preSubmit: this.preSubmit,
-            resultParsed: this.resultParsed
-          }).overlay(overlay);
+          var expose, overlay;
+          expose = {
+            color: "#333",
+            loadSpeed: 200,
+            opacity: 0.9
+          };
+          overlay = {
+            load: true,
+            closeOnEsc: true,
+            expose: expose,
+            closeOnClick: true,
+            close: ':button'
+          };
+          widget.onEditData(null, data);
+          $("#edit-widget-form").get(0).setAttribute("action", editUrl);
+          $(link).overlay(overlay);
+          return $(link).overlay(overlay).load();
         }
       };
       $.ajax(options);
+      return this;
+    };
+
+    WidgetAdmin.prototype.onEditData = function(e, params) {
+      var optHolder;
+      if (params.status === true) {
+        location.reload();
+      } else {
+        optHolder = $("#edit-widget-form").find('fieldset#widget-options').find(".options");
+        switch (params.type) {
+          case "ef":
+            optHolder.empty();
+            optHolder.prepend(params.data);
+            break;
+          default:
+            this;
+        }
+      }
       return this;
     };
 
@@ -97,10 +128,6 @@
       form.hide();
       $('#editable-loading').show();
       if (typeof tinyMCE !== "undefined") return tinyMCE.triggerSave();
-    };
-
-    WidgetAdmin.prototype.editWidget = function(event) {
-      return this;
     };
 
     WidgetAdmin.prototype.resultParsed = function(e, params) {
