@@ -110,6 +110,8 @@ Change directory to the example app and run::
 
 python manage.py createdb --noinput
 
+The gallery page has a couple of widgets, so take a look at that first.
+
 TODO
 ====
 * Better presentation of widget list in frontend.
