@@ -58,6 +58,9 @@ class WidgetClassBase(object):
 class WidgetModel(models.Model):
     widget = models.ForeignKey('widget.Widget')
 
+    def __unicode__(self):
+        return u'Model for widget <%s>' % widget.widget_class
+
 
 class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
     """
@@ -125,7 +128,7 @@ class Widget(Orderable, Ownable):
         super(Widget, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return self.display_title
+        return unicode(self.display_title)
 
     def get_class(self):
         return self.widget_class
