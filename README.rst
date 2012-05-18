@@ -78,13 +78,15 @@ The template variable can either be the path to a template file or a string with
 
 Rendering
 ---------
-Render widgets on a page by first including the widget tag library.::
+Render widgets on a page by first including the widget tag library::
 
 	{% load widget_tags %}
 
-You will need to load the javascript code which is used to manipulate widgets. The following should go in your base template.::
+You will need to load the javascript code which is used to manipulate widgets. The following should go in your base template::
 
     {% widget_loader %}
+
+.. note:: This should come after all other javascript declarations. Please make sure you have jquery declared.
 
 The following snippet will render widgets which are assigned to the footer slot.::
 
@@ -95,6 +97,8 @@ Adding Widgets
 --------------
 It is really easy to add widgets from the frontend site. Just look for the `Add Widget` link and click it. You will get a
 list of widgets to choose from. If the widget has options, you will be able to enter them. Try adding the twitter mentions widget.
+
+.. note:: Widgets can only be modified on mezzanine pages (for now).
 
 Example Project
 ===============
