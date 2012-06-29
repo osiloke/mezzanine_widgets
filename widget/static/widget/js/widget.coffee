@@ -3,7 +3,7 @@ class @WidgetAdmin
 
 
   constructor: ->
-    console.log "Widget Admin Controller"
+#    console.log "Widget Admin Controller"
     #Catch all actions which are not implemented yet
     not_impl = $('a.not-implemented')
     if not_impl.length > 0

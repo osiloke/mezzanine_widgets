@@ -9,7 +9,6 @@
       this.setupWidgetForms = __bind(this.setupWidgetForms, this);
       this.setupAdmin = __bind(this.setupAdmin, this);
       var not_impl;
-      console.log("Widget Admin Controller");
       not_impl = $('a.not-implemented');
       if (not_impl.length > 0) not_impl.each(function(i) {});
       this;
