@@ -4,6 +4,13 @@ OVERVIEW
 
 :info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget or slideshow to mezzanine pages.
 
+Features
+========
+* Easy and full frontend modification of widgets i.e Adding, Editing and Deleting widgets
+* Configuration options for each widget
+* Multisite support
+* Bootstrap theme integration
+
 Requirements
 ============
 mezzanine 1.0 (I'm not sure if 1.0 is backwards compatible)
@@ -115,7 +122,5 @@ The gallery page has a couple of widgets, so take a look at that first.
 TODO
 ====
 * Better presentation of widget list in frontend.
-* Utilize more of bootstrap
-* Fix edit widget function
 * Sorting and swapping widgets
 * More render options
