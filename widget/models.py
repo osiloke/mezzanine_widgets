@@ -151,7 +151,7 @@ class Widget(Orderable, Ownable, SiteRelated):
 
     class Meta:
         verbose_name = _("Widget")
-        verbose_name_plural = _("Widget's")
+        verbose_name_plural = _("Widgets")
         ordering = ("display_title",) 
 
 
