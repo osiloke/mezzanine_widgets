@@ -13,7 +13,7 @@ Features
 
 Requirements
 ============
-mezzanine 1.0 (I'm not sure if 1.0 is backwards compatible)
+mezzanine 1.x.x (I'm not sure if 1.0 is backwards compatible)
 django-classy-tags
 
 METHODOLOGY
