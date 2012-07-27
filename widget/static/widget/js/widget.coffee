@@ -44,11 +44,12 @@ class @WidgetAdmin
     $("#edit-widget-form").adminForm({resultParsed: @onEditData})
     $('.widget-edit-link').click((e) =>
         widget_id = e.currentTarget.id.split("-")[1]
-        @onEditForm(e.currentTarget, widget_id)
+        widget_title = e.currentTarget.value
+        @onEditForm(e.currentTarget, widget_id, widget_title)
     )
     @
 
-  onEditForm: (link, widget_id) ->
+  onEditForm: (link, widget_id, widget_title) ->
     widget = this
     editUrl = "/widget/edit/" + widget_id + "/"
     options = {
@@ -56,7 +57,7 @@ class @WidgetAdmin
       success: (data) ->
         expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
         overlay = {load: true, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
-        widget.onEditData(null, data) 
+        widget.onEditData(null, data, widget_title)
         $("#edit-widget-form")
           # .adminForm({data: {id: widget_id}})
           .get(0)
@@ -70,7 +71,7 @@ class @WidgetAdmin
     $.ajax(options)
     @
 
-  onEditData: (e, params) ->
+  onEditData: (e, params, widget_title) ->
     if params.status == true
       location.reload()
     else

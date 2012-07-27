@@ -8,7 +8,7 @@ from django.db import models
 from mezzanine.conf import settings
 from mezzanine.core.managers import PublishedManager, SearchableManager
 from mezzanine.core.models import Orderable, Displayable, \
-    CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable
+    CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable, SiteRelated
 from mezzanine.forms.fields import TEXT
 from mezzanine.pages.models import Page
 
@@ -55,7 +55,7 @@ class WidgetClassBase(object):
         raise NotImplementedError("Render function needs to be implemented")
 
 
-class WidgetModel(models.Model):
+class WidgetModel(SiteRelated):
     widget = models.ForeignKey('widget.Widget')
 
     def __unicode__(self):
@@ -71,7 +71,7 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
     pass
 
 
-class Widget(Orderable, Ownable):
+class Widget(Orderable, Ownable, SiteRelated):
     display_title = models.CharField(default=None, verbose_name="Title", max_length=255, \
         null=False)
     widget_class = PageWidgetClass(default="", verbose_name="Widget Type")
@@ -82,7 +82,7 @@ class Widget(Orderable, Ownable):
     widgetslot = models.CharField(max_length=255, default="none")
     page_less = models.BooleanField(default=False)
     page = models.ForeignKey(Page, null=True, blank=True)
-    status = models.IntegerField(_("Status"),
+    status = models.IntegerField(_("Publish Status"),
         choices=CONTENT_STATUS_CHOICES, default=CONTENT_STATUS_DRAFT)
     publish_date = models.DateTimeField(_("Published from"),
         help_text=_("With published checked, won't be shown until this time"),
@@ -90,7 +90,7 @@ class Widget(Orderable, Ownable):
     expiry_date = models.DateTimeField(_("Expires on"),
         help_text=_("With published checked, won't be shown after this time"),
         blank=True, null=True)
-    site = models.ForeignKey(Site, editable=False)
+#    site = models.ForeignKey(Site, editable=False)
 
     objects = WidgetManager()
     search_fields = {"keywords": 10, "display_title": 5}
@@ -155,7 +155,7 @@ class Widget(Orderable, Ownable):
         ordering = ("display_title",) 
 
 
-class WidgetOptionGroup(models.Model):
+class WidgetOptionGroup(SiteRelated):
     """
     A group of option entries for a widget
     """
@@ -171,7 +171,7 @@ class WidgetOptionGroup(models.Model):
         verbose_name_plural = _("Widget Option Group's")
 
 
-class WidgetOptionEntry(models.Model):
+class WidgetOptionEntry(SiteRelated):
 
     """
     A single option value for a form entry submitted via a user-built form.

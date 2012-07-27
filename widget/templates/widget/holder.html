@@ -13,15 +13,15 @@
     {% for w in widgets %}
     <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder" style="position:relative;">
         {% if request.user.is_staff %}
-            {% if w.widget.hasOptions %}
+            {# if w.widget.hasOptions #}
             <div class="btn-toolbar">
             <span class="widget-item-toolbar btn-group">
                 
-                <a id="ew-{{ w.widget.id }}" class="widget-edit-link btn btn-small" rel="#edit-widget-form" href="#edit-widget" ><i class="icon-edit"></i>{% trans "Configure Widget" %}</a>
+                <a id="ew-{{ w.widget.id }}" class="widget-edit-link label-info label" rel="#edit-widget-form" href="#edit-widget" ><i class="icon-edit"></i>{% trans "Configure " %}{{ w.meta.name|cut:" "|force_escape|capfirst}}</a>
                   
             </span>
             </div>
-            {% endif %} 
+            {# endif #}
         <a style="position: absolute;top: 0;right: 0;" id="dw-{{ w.widget.id }}" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
         {% endif %}
         <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-content">

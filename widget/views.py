@@ -48,20 +48,21 @@ def edit_widget(request, **kwargs):
             "This is a request to get a form for widget"
             ctx = RequestContext(request)
             "get widget form populated with widget options" 
-            widget = Widget.objects.get(id=kwargs.get("id")) 
+            widget = Widget.objects.get(id=kwargs.get("id"))
+            initial = {'status': widget.status}
             if widget.hasOptions:
-                initial = dict(("option_%s" % option.name, option.value) \
-                             for option in widget.options.all())
-                options_form = WidgetOptionsForm(widget.widget_class, \
-                                data=initial)
+                initial.update(dict(("option_%s" % option.name, option.value) \
+                             for option in widget.options.all()))
+            options_form = WidgetOptionsForm(widget.widget_class, \
+                            data=initial)
 
-                o = get_template("widget/options.html")
-                ctx.update({'options_form': options_form})
+            o = get_template("widget/options.html")
+            ctx.update({'options_form': options_form})
 
-                options = o.render(ctx)
-                data = {'valid': False, 'type': 'ef', 'data': options}
-            else:
-                data = {'valid': True, 'type': 'nf'}
+            options = o.render(ctx)
+            data = {'valid': False, 'type': 'ef', 'data': options}
+#            else:
+#                data = {'valid': True, 'type': 'nf'}
 
         return HttpResponse(json_serializer.encode(data), \
                             mimetype='application/json')

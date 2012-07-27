@@ -68,14 +68,15 @@
         resultParsed: this.onEditData
       });
       $('.widget-edit-link').click(function(e) {
-        var widget_id;
+        var widget_id, widget_title;
         widget_id = e.currentTarget.id.split("-")[1];
-        return _this.onEditForm(e.currentTarget, widget_id);
+        widget_title = e.currentTarget.value;
+        return _this.onEditForm(e.currentTarget, widget_id, widget_title);
       });
       return this;
     };
 
-    WidgetAdmin.prototype.onEditForm = function(link, widget_id) {
+    WidgetAdmin.prototype.onEditForm = function(link, widget_id, widget_title) {
       var editUrl, options, widget;
       widget = this;
       editUrl = "/widget/edit/" + widget_id + "/";
@@ -95,7 +96,7 @@
             closeOnClick: true,
             close: ':button'
           };
-          widget.onEditData(null, data);
+          widget.onEditData(null, data, widget_title);
           $("#edit-widget-form").get(0).setAttribute("action", editUrl);
           $(link).overlay(overlay);
           return $(link).overlay(overlay).load();
@@ -105,7 +106,7 @@
       return this;
     };
 
-    WidgetAdmin.prototype.onEditData = function(e, params) {
+    WidgetAdmin.prototype.onEditData = function(e, params, widget_title) {
       var optHolder;
       if (params.status === true) {
         location.reload();
