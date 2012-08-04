@@ -31,6 +31,7 @@
           return $("#options-form-holder").html(_this.options_forms[type]);
         }
       });
+      this.setupSortableWidgets();
       return this;
     };
 
@@ -187,6 +188,41 @@
 
     WidgetAdmin.prototype.doFormSave = function(event) {
       return console.log("Form Clicked");
+    };
+
+    WidgetAdmin.prototype.setupSortableWidgets = function() {
+      ({
+        updateOrdering: function(event, ui) {
+          var args;
+          args = {
+            'ordering_from': $(this).sortable('toArray').toString(),
+            'ordering_to': $(ui.item).parent().sortable('toArray').toString()
+          };
+          if (args['ordering_from'] !== args['ordering_to']) {
+            args['moved_widget'] = $(ui.item).attr('id');
+            args['moved_parent'] = $(ui.item).parent().parent().attr('id');
+            if (args['moved_parent'] === 'tree') delete args['moved_parent'];
+          } else {
+            delete args['ordering_to'];
+          }
+          return $.post(window.__page_ordering_url, args, function(data) {
+            if (data !== "ok") {
+              return alert("Error occured: " + data + "\nOrdering wasn't updated.");
+            }
+          });
+        }
+      });
+      $('#widget-sortable').sortable({
+        handle: '.ordering',
+        opacity: '.7',
+        stop: updateOrdering,
+        forcePlaceholderSize: true,
+        placeholder: 'placeholder',
+        revert: 150,
+        toleranceElement: ' div'
+      }).sortable('option', 'connectWith', '#tree ul');
+      $('#widget-sortable').disableSelection();
+      return this;
     };
 
     return WidgetAdmin;

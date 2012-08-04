@@ -26,6 +26,7 @@ class @WidgetAdmin
             )
         else
           $("#options-form-holder").html(@options_forms[type])
+    @setupSortableWidgets()
     @
 
   setupWidgetForms: () =>
@@ -147,3 +148,38 @@ class @WidgetAdmin
 
     doFormSave: (event) ->
       console.log "Form Clicked"
+
+
+    setupSortableWidgets: ->
+      # AJAX callback that's triggered when dragging a page to re-order
+      # it has ended.
+      # Based on mezzanine
+      updateOrdering: (event, ui) ->
+        args = 
+            'ordering_from': $(this).sortable('toArray').toString(),
+            'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
+        
+        if args['ordering_from'] != args['ordering_to']
+            # Branch changed - set the new parent ID.
+            args['moved_widget'] = $(ui.item).attr('id')
+            args['moved_parent'] = $(ui.item).parent().parent().attr('id')
+            if args['moved_parent'] == 'tree'
+                delete args['moved_parent']
+        else
+            delete args['ordering_to']
+        
+        $.post(window.__page_ordering_url, args, (data) ->
+            if data != "ok"
+                alert("Error occured: " + data + "\nOrdering wasn't updated.");
+            
+        )
+      $('#widget-sortable').sortable({
+        handle: '.ordering', opacity: '.7', stop: updateOrdering,
+        forcePlaceholderSize: true, placeholder: 'placeholder',
+        revert: 150, toleranceElement: ' div'
+      }).sortable('option', 'connectWith', '#tree ul')
+      $('#widget-sortable').disableSelection()
+    
+      @
+
+

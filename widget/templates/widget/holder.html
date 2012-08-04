@@ -1,33 +1,42 @@
 {% load i18n %}
-{% load mezzanine_tags %}
+{% load mezzanine_tags pages_tags %}
 
 
 <div class="widget-wrapper" id="{{ slot }}">
-    {% if request.user.is_staff %}
+    {% if perms.widget.can_add %} 
     <div class="widget-toolbar">
-       {% if page %} <a class="widget-add-link label-success label" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>{% endif %}
-    </div>
+       {% if page %} <a class="widget-add-link label-success label" href="#" rel="#widget-form">{% trans "Add Widget" %}</a>
+       {% endif %}
+    </div> 
     {% endif %}
     {% if widgets and contains_widgets %}
     <div id="widget-sortable">
-    {% for w in widgets %}
-    <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder" style="position:relative;">
-        {% if request.user.is_staff %}
-            {# if w.widget.hasOptions #}
-            <div class="btn-toolbar">
-            <span class="widget-item-toolbar btn-group">
-                
-                <a id="ew-{{ w.widget.id }}" class="widget-edit-link label-info label" rel="#edit-widget-form" href="#edit-widget" ><i class="icon-edit"></i>{% trans "Configure " %}{{ w.meta.name|cut:" "|force_escape|capfirst}}</a>
-                  
-            </span>
+    {% for w in widgets %} 
+        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-holder" class="ui-state-default widget_holder ordering_{{ w.widget.id }}" style="position:relative;">
+                {% if perms.widget.can_change %} 
+                {# if w.widget.hasOptions #}
+                <div class="btn-toolbar">
+                <span class="widget-item-toolbar btn-group">
+                    
+                    <a id="ew-{{ w.widget.id }}" class="widget-edit-link label-info label" rel="#edit-widget-form" href="#edit-widget" ><i class="icon-edit"></i>{% trans "Configure " %}{{ w.meta.name|cut:" "|force_escape|capfirst}}</a>
+                      
+                </span>
+                </div>
+                {% endif %}
+                {# endif #}
+                {% if perms.widget.can_delete %} 
+                <a style="position: absolute;top: 0;right: 0;" id="dw-{{ w.widget.id }}" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
+                {% endif %}
+                {% if perms.widget.can_change %}
+                <span style="position: absolute;top: 0;right: 0;" class="ordering">
+                    <img src="img/admin/arrow-up.gif" />
+                    <img src="img/admin/arrow-down.gif" />
+                </span>
+                {% endif %}
+            <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-content">
+                {{ w.content|safe }}
             </div>
-            {# endif #}
-        <a style="position: absolute;top: 0;right: 0;" id="dw-{{ w.widget.id }}" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
-        {% endif %}
-        <div id="{{ w.meta.name|cut:" "|force_escape|lower}}-widget-content">
-            {{ w.content|safe }}
         </div>
-    </div>
     {%  endfor %}
     </div>
     {%  endif %}

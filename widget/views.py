@@ -20,11 +20,11 @@ from widget.utilities import ajaxerror
 json_serializer = LazyEncoder()
 
 
-def get_widget_list_for_page(page):
+def get_widget_list_for_widget(widget):
     try:
-        all_classes = get_all_page_widgets()
+        all_classes = get_all_widget_widgets()
         list = Template('widget/list.html')
-        c = {'widgets': all_classes, 'page_id': page.id}
+        c = {'widgets': all_classes, 'widget_id': widget.id}
 
         return c
     except Exception:
@@ -127,15 +127,15 @@ def create_widget(request, **kwargs):
             widget_class = request.POST["widget_class"]
             slot = request.POST["widgetslot"]
             try:
-                page_obj = Page.objects.published(request.user)\
-                                .get(id=request.POST["page"])
+                widget_obj = Page.objects.published(request.user)\
+                                .get(id=request.POST["widget"])
                 options_form = WidgetOptionsForm(widget_class, request.POST)
                 if options_form.is_valid():
                     try:
                         "update widget if it exists"
                         widget = Widget.objects.get(id=request.POST["widget"])
                     except Exception:
-                        widget = Widget(widgetslot=slot, page=page_obj,
+                        widget = Widget(widgetslot=slot, widget=widget_obj,
                                         widget_class=widget_class,
                                         user=request.user)
                         widget.save()
@@ -145,7 +145,7 @@ def create_widget(request, **kwargs):
                 elif options_form.errors:
                     data = ajaxerror(options_form)
             except Exception, e:
-                data = {"valid": "false", "error": { "_all_": ["Something went wrong, please refresh the page"],}}
+                data = {"valid": "false", "error": { "_all_": ["Something went wrong, please refresh the widget"],}}
 
     return HttpResponse(json_serializer.encode(data),\
                                  mimetype='application/json')
@@ -183,3 +183,37 @@ def widget_options(request, type):
 @admin_can(Widget)
 def create_success(request):
     return render_to_response("widget/success.html", {})
+
+
+@ajax_view()
+@admin_can(Widget, action="change")
+def widget_ordering(request):
+    """
+    Based on mezzanine pages admin ordering
+    Updates the ordering of widgets via AJAX from within the admin.
+    """
+    get_id = lambda s: s.split("_")[-1]
+    for ordering in ("ordering_from", "ordering_to"):
+        ordering = request.POST.get(ordering, "")
+        if ordering:
+            for i, widget in enumerate(ordering.split(",")):
+                try:
+                    Widget.objects.filter(id=get_id(widget)).update(_order=i)
+                except Exception, e:
+                    return HttpResponse(str(e))
+    try:
+        moved_widget = int(get_id(request.POST.get("moved_widget", "")))
+    except ValueError, e:
+        pass
+    else:
+        moved_parent = get_id(request.POST.get("moved_parent", ""))
+        if not moved_parent:
+            moved_parent = None
+        try:
+            widget = Widget.objects.get(id=moved_widget)
+            widget.parent_id = moved_parent
+            widget.save()
+            widget.reset_slugs()
+        except Exception, e:
+            return HttpResponse(str(e))
+    return HttpResponse("ok")
