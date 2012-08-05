@@ -8,7 +8,7 @@ from widget.widget_pool import get_widget_options, WidgetHasNoOptions
 from widget.models import WidgetOptionEntry, Widget
 
 from mezzanine.pages.models import Page
-from mezzanine.forms import fields
+import option_fields as fields
 from mezzanine.conf import settings
 from mezzanine.forms.forms import fs
 
@@ -37,7 +37,7 @@ class WidgetOptionsForm(forms.Form):
     Dynamically created form for displaying widget options
     defined in a widget class. Based on mezzanine forms
     """
-
+    extra_js = []
     hasOptions = False
     status = forms.ChoiceField(choices=CONTENT_STATUS_CHOICES, initial=CONTENT_STATUS_DRAFT)
 
@@ -47,6 +47,7 @@ class WidgetOptionsForm(forms.Form):
         instance and its related field model instances.
         """
         #get widget options from widget_class
+        self.extra_js = []
         super(WidgetOptionsForm, self).__init__(*args, **kwargs)
         self.widget_class = widget_class
         try:
@@ -71,12 +72,23 @@ class WidgetOptionsForm(forms.Form):
                     field_args["widget"] = field_widget
                 self.fields[field_key] = field_class(**field_args)
                 css_class = field_class.__name__.lower()
+
+                field_key_widget =  self.fields[field_key].widget
                 if field.required:
                     css_class += " required"
                     if (settings.FORMS_USE_HTML5 and
                         field.field_type != fields.CHECKBOX_MULTIPLE):
-                        self.fields[field_key].widget.attrs["required"] = ""
-                self.fields[field_key].widget.attrs["class"] = css_class
+                        field_key_widget.attrs["required"] = ""
+                try:
+                    field_key_widget.attrs["class"] = css_class + " " + field_key_widget.attrs["class"]
+                except KeyError:
+                    field_key_widget.attrs["class"] = css_class
+
+                try:
+                    self.extra_js.append("this.%s('%s');" % (field_key_widget.META.init_js, "id_%s" % field_key))
+                except Exception:
+                    pass
+
                 try:
                     if field.placeholder_text and not field.default:
                         text = field.placeholder_text

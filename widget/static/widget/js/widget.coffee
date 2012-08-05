@@ -45,8 +45,9 @@ class @WidgetAdmin
     $("#edit-widget-form").adminForm({resultParsed: @onEditData})
     $('.widget-edit-link').click((e) =>
         widget_id = e.currentTarget.id.split("-")[1]
-        widget_title = e.currentTarget.value
+        widget_title = e.currentTarget.parentElement.parentElement.parentElement.id
         @onEditForm(e.currentTarget, widget_id, widget_title)
+#        e.preventDefault();
     )
     @
 
@@ -56,18 +57,10 @@ class @WidgetAdmin
     options = {
       url: editUrl
       success: (data) ->
-        expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
-        overlay = {load: true, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
         widget.onEditData(null, data, widget_title)
         $("#edit-widget-form")
-          # .adminForm({data: {id: widget_id}})
           .get(0)
           .setAttribute("action", editUrl)
-
-        $(link).overlay(overlay)
-        #The load option doesnt seem to be working
-        #load overlay after binding to the link
-        $(link).overlay(overlay).load()
     }
     $.ajax(options)
     @
@@ -79,10 +72,17 @@ class @WidgetAdmin
       optHolder = $("#edit-widget-form")
                       .find('fieldset#widget-options')
                       .find(".options")
+
+      #set modal title
+      $("#editForm h3#title").text("Edit " + widget_title)
       switch params.type
          when "ef"
            optHolder.empty()
-           optHolder.prepend params.data 
+           optHolder.prepend params.data
+
+           if params.extra_js
+             for js in params.extra_js
+              eval(js)
          else
             @
     @
@@ -115,7 +115,7 @@ class @WidgetAdmin
            listSet.show()
            optHolder.empty()
            optSet.hide()
-           optSet.find("legend").val("Configure this Widget")
+           $("#editForm h3#title").text("Configure this Widget")
            form.get(0).setAttribute("action", action)
            back.hide()
            doer.val("Choose")
@@ -139,12 +139,17 @@ class @WidgetAdmin
              )
            when "nf"
            else
-             optSet.find("legend").val("You are done! Click save")
+             $("#editForm h3#title").text("You are done! Click save")
              @
 
 
       $('#editable-loading').hide()
       form.show()
+
+    #The following functions are used to execute special js init for some widget option types
+
+    wysihtml: (id) ->
+      $("#" + id).wysihtml5({"font-styles": true, "emphasis": true, "lists": true, "html": true})
 
     doFormSave: (event) ->
       console.log "Form Clicked"

@@ -9,7 +9,7 @@ from mezzanine.conf import settings
 from mezzanine.core.managers import PublishedManager, SearchableManager
 from mezzanine.core.models import Orderable, Displayable, \
     CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable, SiteRelated
-from mezzanine.forms.fields import TEXT
+from .option_fields import TEXT
 from mezzanine.pages.models import Page
 
 from widget.fields import PageWidgetClass

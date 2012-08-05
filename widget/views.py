@@ -60,9 +60,9 @@ def edit_widget(request, **kwargs):
             ctx.update({'options_form': options_form})
 
             options = o.render(ctx)
-            data = {'valid': False, 'type': 'ef', 'data': options}
-#            else:
-#                data = {'valid': True, 'type': 'nf'}
+
+            extra_js = options_form.extra_js
+            data = {'valid': False, 'type': 'ef', 'data': options, 'extra_js': extra_js}
 
         return HttpResponse(json_serializer.encode(data), \
                             mimetype='application/json')

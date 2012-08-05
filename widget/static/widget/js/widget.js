@@ -71,7 +71,7 @@
       $('.widget-edit-link').click(function(e) {
         var widget_id, widget_title;
         widget_id = e.currentTarget.id.split("-")[1];
-        widget_title = e.currentTarget.value;
+        widget_title = e.currentTarget.parentElement.parentElement.parentElement.id;
         return _this.onEditForm(e.currentTarget, widget_id, widget_title);
       });
       return this;
@@ -84,23 +84,8 @@
       options = {
         url: editUrl,
         success: function(data) {
-          var expose, overlay;
-          expose = {
-            color: "#333",
-            loadSpeed: 200,
-            opacity: 0.9
-          };
-          overlay = {
-            load: true,
-            closeOnEsc: true,
-            expose: expose,
-            closeOnClick: true,
-            close: ':button'
-          };
           widget.onEditData(null, data, widget_title);
-          $("#edit-widget-form").get(0).setAttribute("action", editUrl);
-          $(link).overlay(overlay);
-          return $(link).overlay(overlay).load();
+          return $("#edit-widget-form").get(0).setAttribute("action", editUrl);
         }
       };
       $.ajax(options);
@@ -108,15 +93,23 @@
     };
 
     WidgetAdmin.prototype.onEditData = function(e, params, widget_title) {
-      var optHolder;
+      var js, optHolder, _i, _len, _ref;
       if (params.status === true) {
         location.reload();
       } else {
         optHolder = $("#edit-widget-form").find('fieldset#widget-options').find(".options");
+        $("#editForm h3#title").text("Edit " + widget_title);
         switch (params.type) {
           case "ef":
             optHolder.empty();
             optHolder.prepend(params.data);
+            if (params.extra_js) {
+              _ref = params.extra_js;
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                js = _ref[_i];
+                eval(js);
+              }
+            }
             break;
           default:
             this;
@@ -153,7 +146,7 @@
           listSet.show();
           optHolder.empty();
           optSet.hide();
-          optSet.find("legend").val("Configure this Widget");
+          $("#editForm h3#title").text("Configure this Widget");
           form.get(0).setAttribute("action", action);
           back.hide();
           return doer.val("Choose");
@@ -178,12 +171,21 @@
           case "nf":
             break;
           default:
-            optSet.find("legend").val("You are done! Click save");
+            $("#editForm h3#title").text("You are done! Click save");
             this;
         }
       }
       $('#editable-loading').hide();
       return form.show();
+    };
+
+    WidgetAdmin.prototype.wysihtml = function(id) {
+      return $("#" + id).wysihtml5({
+        "font-styles": true,
+        "emphasis": true,
+        "lists": true,
+        "html": true
+      });
     };
 
     WidgetAdmin.prototype.doFormSave = function(event) {
