@@ -22,3 +22,9 @@
     margin:15px 0 0 15px; padding:5px 15px;}
 .frontend-admin-form .controls{margin-bottom: 10px;}
 .frontend-admin-form .controls label{margin-bottom: 10px;}
+/*.placeholder {border:1px dashed #ddd;}*/
+.ordering .tools{position: relative; top:0; right:0; loat:right; cursor:move;}
+.wysihtml5-sandbox body{line-height: 1px !important;}
+#sortablelist {
+    padding: 16px 21px !important;
+}

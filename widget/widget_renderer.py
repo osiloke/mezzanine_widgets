@@ -33,7 +33,7 @@ def render_widgets_for_slot(slot, widget_context):
     #regular widgets
     slot_widgets = Widget.objects.published(user)\
                     .filter(widgetslot=slot,\
-                        page=page, page_less=False)
+                        page=page, page_less=False).order_by('_order')
     #Some widgets are not bound to one page, logo widget
     page_less_widgets = Widget.objects.published(user)\
                 .filter(widgetslot=slot, page_less=True)

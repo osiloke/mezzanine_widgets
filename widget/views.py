@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.template.base import Template
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 
@@ -185,13 +186,14 @@ def create_success(request):
     return render_to_response("widget/success.html", {})
 
 
-@ajax_view()
+#@ajax_view()
 @admin_can(Widget, action="change")
 def widget_ordering(request):
     """
     Based on mezzanine pages admin ordering
     Updates the ordering of widgets via AJAX from within the admin.
     """
+    data = {"status": True}
     get_id = lambda s: s.split("_")[-1]
     for ordering in ("ordering_from", "ordering_to"):
         ordering = request.POST.get(ordering, "")
@@ -200,7 +202,7 @@ def widget_ordering(request):
                 try:
                     Widget.objects.filter(id=get_id(widget)).update(_order=i)
                 except Exception, e:
-                    return HttpResponse(str(e))
+                    data = {'status':False, 'error':str(e)}
     try:
         moved_widget = int(get_id(request.POST.get("moved_widget", "")))
     except ValueError, e:
@@ -211,9 +213,9 @@ def widget_ordering(request):
             moved_parent = None
         try:
             widget = Widget.objects.get(id=moved_widget)
-            widget.parent_id = moved_parent
+            widget.widgetslot = moved_parent
             widget.save()
-            widget.reset_slugs()
         except Exception, e:
-            return HttpResponse(str(e))
-    return HttpResponse("ok")
+            data = {'status':False, 'error':str(e)}
+    return HttpResponse(json_serializer.encode(data),\
+        mimetype='application/json')

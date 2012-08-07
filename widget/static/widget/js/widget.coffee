@@ -26,7 +26,6 @@ class @WidgetAdmin
             )
         else
           $("#options-form-holder").html(@options_forms[type])
-    @setupSortableWidgets()
     @
 
   setupWidgetForms: () =>
@@ -159,11 +158,11 @@ class @WidgetAdmin
       # AJAX callback that's triggered when dragging a page to re-order
       # it has ended.
       # Based on mezzanine
-      updateOrdering: (event, ui) ->
+      updateOrdering = (event, ui) ->
         args = 
             'ordering_from': $(this).sortable('toArray').toString(),
             'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
-        
+
         if args['ordering_from'] != args['ordering_to']
             # Branch changed - set the new parent ID.
             args['moved_widget'] = $(ui.item).attr('id')
@@ -172,18 +171,27 @@ class @WidgetAdmin
                 delete args['moved_parent']
         else
             delete args['ordering_to']
+            delete args['widget_class_to']
         
-        $.post(window.__page_ordering_url, args, (data) ->
-            if data != "ok"
+        $.post(window.__widget_ordering_url, args, (data) ->
+            if not data
                 alert("Error occured: " + data + "\nOrdering wasn't updated.");
             
         )
-      $('#widget-sortable').sortable({
+      $('.widget-sortable').sortable({
         handle: '.ordering', opacity: '.7', stop: updateOrdering,
         forcePlaceholderSize: true, placeholder: 'placeholder',
-        revert: 150, toleranceElement: ' div'
-      }).sortable('option', 'connectWith', '#tree ul')
-      $('#widget-sortable').disableSelection()
+        revert: 150,
+        start: (ev, ui) ->
+          setPadding(ui.item.height())
+        ,
+        stop: (ev, ui) ->
+          next = ui.item.next()
+          next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
+          setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
+
+      }).sortable('option', 'connectWith', '.widget-sortable')
+      $('.widget-sortable').disableSelection()
     
       @
 
