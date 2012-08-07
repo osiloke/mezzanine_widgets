@@ -150,15 +150,23 @@ class @WidgetAdmin
     wysihtml: (id) ->
       $("#" + id).wysihtml5({"font-styles": true, "emphasis": true, "lists": true, "html": true})
 
+    gloweditor: (id) ->
+      editor = new glow.widgets.Editor("#" + id, {theme: "dark"})
+
     doFormSave: (event) ->
       console.log "Form Clicked"
 
+    setupWidgetStatusHandler: ->
+      @
 
     setupSortableWidgets: ->
-      # AJAX callback that's triggered when dragging a page to re-order
-      # it has ended.
+      # AJAX callback that's triggered when dragging a widget to re-order
       # Based on mezzanine
       updateOrdering = (event, ui) ->
+        next = ui.item.next()
+        next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
+        setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
+
         args = 
             'ordering_from': $(this).sortable('toArray').toString(),
             'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
@@ -167,7 +175,7 @@ class @WidgetAdmin
             # Branch changed - set the new parent ID.
             args['moved_widget'] = $(ui.item).attr('id')
             args['moved_parent'] = $(ui.item).parent().parent().attr('id')
-            if args['moved_parent'] == 'tree'
+            if args['moved_parent'] == 'widget-sortable'
                 delete args['moved_parent']
         else
             delete args['ordering_to']
@@ -178,18 +186,21 @@ class @WidgetAdmin
                 alert("Error occured: " + data + "\nOrdering wasn't updated.");
             
         )
+      stylesheet =`$('style[name=impostor_size]')[0].sheet,
+        rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
+      setPadding = function(atHeight) {
+      rule.cssText = 'border-top-width: '+atHeight+'px';
+      }`
+
       $('.widget-sortable').sortable({
         handle: '.ordering', opacity: '.7', stop: updateOrdering,
-        forcePlaceholderSize: true, placeholder: 'placeholder',
+        forcePlaceholderSize: true,
+        placeholder: "ui-state-highlight",
+        forcePlaceholderSize: true,
+        placeholder: 'marker',
         revert: 150,
         start: (ev, ui) ->
           setPadding(ui.item.height())
-        ,
-        stop: (ev, ui) ->
-          next = ui.item.next()
-          next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
-          setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
-
       }).sortable('option', 'connectWith', '.widget-sortable')
       $('.widget-sortable').disableSelection()
     

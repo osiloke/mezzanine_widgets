@@ -22,9 +22,26 @@
     margin:15px 0 0 15px; padding:5px 15px;}
 .frontend-admin-form .controls{margin-bottom: 10px;}
 .frontend-admin-form .controls label{margin-bottom: 10px;}
-/*.placeholder {border:1px dashed #ddd;}*/
+
 .ordering .tools{position: relative; top:0; right:0; loat:right; cursor:move;}
 .wysihtml5-sandbox body{line-height: 1px !important;}
 #sortablelist {
     padding: 16px 21px !important;
+}
+
+.ui-state-highlight { height: 1.5em; line-height: 1.2em; }
+.widget-sortable { float:left; margin-right:20px;}
+
+/*body { color:white; font-family:Helvetica, sans-serif; text-shadow:1px 1px 1px rgba(0,0,0,0.2); }*/
+.widget-sortable { overflow:hidden; border-radius:6px; }
+.widget_holder { display:block; position:relative; z-index:1; }
+.widget_holder:after {display:block; position:absolute; height:100%; width:100%; top:0px; left:0px; content:' '; border-radius:6px; z-index:-1; }
+
+.widget_holder { -moz-transition:border-top-width 0.1s ease-in; -webkit-transition:border-top-width 0.1s ease-in; border-top:0px solid rgba(0,0,0,0); }
+.marker {
+    float:left;
+    opacity:0.0;
+    background: #f0f0f0;
+    border:1px dashed #ddd;
+    visibility: visible !important;
 }

@@ -128,15 +128,15 @@ def create_widget(request, **kwargs):
             widget_class = request.POST["widget_class"]
             slot = request.POST["widgetslot"]
             try:
-                widget_obj = Page.objects.published(request.user)\
-                                .get(id=request.POST["widget"])
+#                widget_obj = Page.objects.published(request.user)\
+#                                .get(id=request.POST["widget"])
                 options_form = WidgetOptionsForm(widget_class, request.POST)
                 if options_form.is_valid():
                     try:
                         "update widget if it exists"
                         widget = Widget.objects.get(id=request.POST["widget"])
                     except Exception:
-                        widget = Widget(widgetslot=slot, widget=widget_obj,
+                        widget = Widget(widgetslot=slot,
                                         widget_class=widget_class,
                                         user=request.user)
                         widget.save()
@@ -146,7 +146,7 @@ def create_widget(request, **kwargs):
                 elif options_form.errors:
                     data = ajaxerror(options_form)
             except Exception, e:
-                data = {"valid": "false", "error": { "_all_": ["Something went wrong, please refresh the widget"],}}
+                data = {"valid": "false", "error": { "_all_": ["Something went wrong, please refresh the widget"], "exception": e.message}}
 
     return HttpResponse(json_serializer.encode(data),\
                                  mimetype='application/json')
@@ -208,7 +208,7 @@ def widget_ordering(request):
     except ValueError, e:
         pass
     else:
-        moved_parent = get_id(request.POST.get("moved_parent", ""))
+        moved_parent = request.POST.get("moved_parent", "")
         if not moved_parent:
             moved_parent = None
         try:
@@ -219,3 +219,7 @@ def widget_ordering(request):
             data = {'status':False, 'error':str(e)}
     return HttpResponse(json_serializer.encode(data),\
         mimetype='application/json')
+
+@admin_can(Widget, action="change")
+def widget_status(request):
+    pass

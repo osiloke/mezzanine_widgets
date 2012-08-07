@@ -11,6 +11,9 @@
 <script type="text/javascript"
     src="{{ STATIC_URL }}widget/js/widget.js"></script>
 
+<style name="impostor_size">
+    .marker + div { border-top-width:0px; }
+</style>
 <script type="text/javascript">
     //Make sure we can send ajax posts
     $(function() {
@@ -57,7 +60,8 @@
         window.__widget_ordering_url = "{% url widget_ordering %}";
     });
 </script>
-<!--<link rel="stylesheet" href="{{ STATIC_URL }}widget/css/widget.css">-->
+
+<link rel="stylesheet" href="{{ STATIC_URL }}widget/css/widget.css">
 {% include "widget/widget_form.html" %}
 {% include "widget/edit_widget_form.html" %}
 {% endif %}

@@ -187,14 +187,36 @@
       });
     };
 
+    WidgetAdmin.prototype.gloweditor = function(id) {
+      var editor;
+      return editor = new glow.widgets.Editor("#" + id, {
+        theme: "dark"
+      });
+    };
+
     WidgetAdmin.prototype.doFormSave = function(event) {
       return console.log("Form Clicked");
     };
 
+    WidgetAdmin.prototype.setupWidgetStatusHandler = function() {
+      return this;
+    };
+
     WidgetAdmin.prototype.setupSortableWidgets = function() {
-      var updateOrdering;
+      var stylesheet, updateOrdering;
       updateOrdering = function(event, ui) {
-        var args;
+        var args, next;
+        next = ui.item.next();
+        next.css({
+          '-moz-transition': 'none',
+          '-webkit-transition': 'none',
+          'transition': 'none'
+        });
+        setTimeout(next.css.bind(next, {
+          '-moz-transition': 'border-top-width 0.1s ease-in',
+          '-webkit-transition': 'border-top-width 0.1s ease-in',
+          'transition': 'border-top-width 0.1s ease-in'
+        }));
         args = {
           'ordering_from': $(this).sortable('toArray').toString(),
           'ordering_to': $(ui.item).parent().sortable('toArray').toString()
@@ -202,7 +224,9 @@
         if (args['ordering_from'] !== args['ordering_to']) {
           args['moved_widget'] = $(ui.item).attr('id');
           args['moved_parent'] = $(ui.item).parent().parent().attr('id');
-          if (args['moved_parent'] === 'tree') delete args['moved_parent'];
+          if (args['moved_parent'] === 'widget-sortable') {
+            delete args['moved_parent'];
+          }
         } else {
           delete args['ordering_to'];
           delete args['widget_class_to'];
@@ -213,29 +237,22 @@
           }
         });
       };
+      stylesheet = $('style[name=impostor_size]')[0].sheet,
+        rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
+      setPadding = function(atHeight) {
+      rule.cssText = 'border-top-width: '+atHeight+'px';
+      };
       $('.widget-sortable').sortable({
         handle: '.ordering',
         opacity: '.7',
         stop: updateOrdering,
         forcePlaceholderSize: true,
-        placeholder: 'placeholder',
+        placeholder: "ui-state-highlight",
+        forcePlaceholderSize: true,
+        placeholder: 'marker',
         revert: 150,
         start: function(ev, ui) {
           return setPadding(ui.item.height());
-        },
-        stop: function(ev, ui) {
-          var next;
-          next = ui.item.next();
-          next.css({
-            '-moz-transition': 'none',
-            '-webkit-transition': 'none',
-            'transition': 'none'
-          });
-          return setTimeout(next.css.bind(next, {
-            '-moz-transition': 'border-top-width 0.1s ease-in',
-            '-webkit-transition': 'border-top-width 0.1s ease-in',
-            'transition': 'border-top-width 0.1s ease-in'
-          }));
         }
       }).sortable('option', 'connectWith', '.widget-sortable');
       $('.widget-sortable').disableSelection();

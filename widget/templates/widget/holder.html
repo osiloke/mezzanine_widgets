@@ -10,29 +10,31 @@
            {% endif %}
         </div>
     {% endif %}
-    {% if widgets and contains_widgets %}
-        <div class="widget-sortable">
-            {% for w in widgets %}
-                <div id="ordering_{{ w.widget.id }}{#{ w.meta.name|force_escape}#}" class="widget_holder" style="position:relative;">
-                    <div class="btn-toolbar widget-item-toolbar btn-group">
-                        {% if perms.widget.can_change %}
-                            <a id="ew-{{ w.widget.id }}-edit" class="widget-edit-link" data-target="#editForm" href="#editForm" data-toggle="modal" ><i class="icon-edit"></i>{#% trans "Configure " %}{{ w.meta.name|force_escape|capfirst}#}</a>
-                        {% endif %}
-                        {% if perms.widget.can_delete %}
-                            <a id="dw-{{ w.widget.id }}-delete" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
-                        {% endif %}
-                        {% if perms.widget.can_change %}
-                        <span class="ordering" style="float:right;">
-                            <i class="tools icon-move" {#style="position: absolute;top: 0;right: 0;"#}></i>
-                        </span>
-                        {% endif %}
-                    </div>
-                    <div id="{{ w.meta.name|force_escape|lower}}-widget-content">
-                        {{ w.content|safe }}
-                    </div>
+    {% if perms.widget.can_change or perms.widget.can_delete  %}
+        <div class="widget-sortable" style="  padding: 5px; width:100%" >
+            {% if widgets and contains_widgets %}
+                {% for w in widgets %}
+                    <div id="ordering_{{ w.widget.id }}{#{ w.meta.name|force_escape}#}" class="widget_holder" style="position:relative;">
+                        <div class="btn-toolbar widget-item-toolbar btn-group">
+                            {% if perms.widget.can_change %}
+                                <a id="ew-{{ w.widget.id }}-edit" class="widget-edit-link" data-target="#editForm" href="#editForm" data-toggle="modal" ><i class="icon-edit"></i>{#% trans "Configure " %}{{ w.meta.name|force_escape|capfirst}#}</a>
+                            {% endif %}
+                            {% if perms.widget.can_delete %}
+                                <a id="dw-{{ w.widget.id }}-delete" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
+                            {% endif %}
+                            {% if perms.widget.can_change %}
+                            <span class="ordering" style="float:right;">
+                                <i class="tools icon-move" {#style="position: absolute;top: 0;right: 0;"#}></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div id="{{ w.meta.name|force_escape|lower}}-widget-content">
+                            {{ w.content|safe }}
+                        </div>
 
-                </div>
-            {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
     {% endif %}
 </div>
