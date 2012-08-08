@@ -39,7 +39,7 @@ class WidgetOptionsForm(forms.Form):
     """
     extra_js = []
     hasOptions = False
-    status = forms.ChoiceField(choices=CONTENT_STATUS_CHOICES, initial=CONTENT_STATUS_DRAFT)
+#    status = forms.ChoiceField(choices=CONTENT_STATUS_CHOICES, initial=CONTENT_STATUS_DRAFT)
 
     def __init__(self, widget_class, *args, **kwargs):
         """
@@ -100,8 +100,8 @@ class WidgetOptionsForm(forms.Form):
         """
         Save all option ``WidgetOptionEntry`` with reference to the passed widget.
         """
-        widget.status = self.cleaned_data['status']
-        widget.save()
+#        widget.status = self.cleaned_data['status']
+#        widget.save()
 
         if self.hasOptions:
             for field in self.form_fields:

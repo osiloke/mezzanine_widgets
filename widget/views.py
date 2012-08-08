@@ -6,10 +6,12 @@ from django.template.base import Template
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from mezzanine.pages.models import Page
 from mezzanine.template import get_template
 from mezzanine.utils.views import is_editable
+from mezzanine.core.models import CONTENT_STATUS_PUBLISHED, CONTENT_STATUS_DRAFT
 
 from widget.utilities import  LazyEncoder, ajax_view
 from widget.forms import WidgetForm, WidgetOptionsForm
@@ -69,7 +71,6 @@ def edit_widget(request, **kwargs):
                             mimetype='application/json')
     except Exception:
         raise
-
 
 @admin_can(Widget)
 def widget_list(request):
@@ -220,6 +221,21 @@ def widget_ordering(request):
     return HttpResponse(json_serializer.encode(data),\
         mimetype='application/json')
 
+@require_http_methods(["POST"])
 @admin_can(Widget, action="change")
 def widget_status(request):
-    pass
+    try:
+        id = request.POST["id"]
+        widget = Widget.objects.get(id=id)
+        if widget.status is CONTENT_STATUS_DRAFT:
+            widget.status = CONTENT_STATUS_PUBLISHED
+        else:
+            widget.status = CONTENT_STATUS_DRAFT
+        widget.save()
+        data = {"status":True, "published": widget.status}
+    except Exception, e:
+        data = {"status":False, "error": str(e.message)}
+
+    return HttpResponse(json_serializer.encode(data),\
+        mimetype='application/json')
+

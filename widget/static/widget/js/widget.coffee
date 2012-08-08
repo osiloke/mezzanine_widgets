@@ -1,6 +1,9 @@
 class @WidgetAdmin
   @options_forms: {}
-
+  widget_status_icon_toggle: {
+    2: {"ico":"icon-thumbs-up", "message": "Published", "prefix": "Unpublish"},
+    1: {"ico":"icon-thumbs-down", "messsage": "Unpublished", "prefix":"Publish"}
+  }
 
   constructor: ->
 #    console.log "Widget Admin Controller"
@@ -10,6 +13,8 @@ class @WidgetAdmin
         not_impl.each((i) ->
 
         )
+    #some neccessary jq config
+    $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
     @
 
   setupAdmin: () =>
@@ -26,6 +31,8 @@ class @WidgetAdmin
             )
         else
           $("#options-form-holder").html(@options_forms[type])
+
+
     @
 
   setupWidgetForms: () =>
@@ -41,29 +48,127 @@ class @WidgetAdmin
         overlay = {onBeforeLoad: onBeforeLoad, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
         link.overlay(overlay)
     )
+
+    #Setup Edit Form for ajax post submission
     $("#edit-widget-form").adminForm({resultParsed: @onEditData})
+
+    #Setup Edit Form Triggers
     $('.widget-edit-link').click((e) =>
         widget_id = e.currentTarget.id.split("-")[1]
         widget_title = e.currentTarget.parentElement.parentElement.parentElement.id
         @onEditForm(e.currentTarget, widget_id, widget_title)
-#        e.preventDefault();
+        $('#editForm').modal()
+        e.preventDefault();
     )
     @
 
+  setupWidgetStatusHandler: =>
+    status_icons = @widget_status_icon_toggle
+    $(".widget-publish-link").tooltip {
+      placement:"right",
+      title: () ->
+        widget_status = @.id.split("-")[-1..][0]
+        return status_icons[widget_status]["prefix"]
+    }
+    $(".widget-publish-link").click((e) =>
+      id_split = e.currentTarget.id.split("-")
+      widget_id = id_split[1]
+      widget_title = $(e.currentTarget).attr('data-original-title')
+      callback = (data) =>
+        if data.status == true
+#          icon = $("#" + e.currentTarget.id + " i")
+          icon = e.currentTarget.getElementsByTagName("i")[0]
+          toggle = @widget_status_icon_toggle[data.published]
+          new_class = toggle["ico"]
+          icon.className = new_class
+          old_id = e.currentTarget.id
+          new_id = old_id[...-1] + data.published
+          e.currentTarget.id = new_id
+
+
+      @remoteCall(e.currentTarget, window.__widget_status_url, {"id":widget_id}, callback)
+      e.preventDefault()
+    )
+
+  setupSortableWidgets: ->
+    # AJAX callback that's triggered when dragging a widget to re-order
+    # Based on mezzanine
+    updateOrdering = (event, ui) ->
+      next = ui.item.next()
+      next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
+      setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
+
+      args =
+        'ordering_from': $(this).sortable('toArray').toString(),
+        'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
+
+      if args['ordering_from'] != args['ordering_to']
+        # Branch changed - set the new parent ID.
+        args['moved_widget'] = $(ui.item).attr('id')
+        args['moved_parent'] = $(ui.item).parent().parent().attr('id')
+        if args['moved_parent'] == 'widget-sortable'
+          delete args['moved_parent']
+      else
+        delete args['ordering_to']
+        delete args['widget_class_to']
+
+      $.post(window.__widget_ordering_url, args, (data) ->
+        if not data
+          alert("Error occured: " + data + "\nOrdering wasn't updated.");
+
+      )
+    stylesheet =`$('style[name=impostor_size]')[0].sheet,
+          rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
+        setPadding = function(atHeight) {
+        rule.cssText = 'border-top-width: '+atHeight+'px';
+        }`
+
+    $('.widget-sortable').sortable({
+    handle: '.ordering', opacity: '.7', stop: updateOrdering,
+    forcePlaceholderSize: true,
+    placeholder: "ui-state-highlight",
+    forcePlaceholderSize: true,
+    placeholder: 'marker',
+    revert: 150,
+    start: (ev, ui) ->
+      setPadding(ui.item.height())
+    }).sortable('option', 'connectWith', '.widget-sortable')
+    $('.widget-sortable').disableSelection()
+
+    @
+  #edit form handler
   onEditForm: (link, widget_id, widget_title) ->
     widget = this
-    editUrl = "/widget/edit/" + widget_id + "/"
+    url = "/widget/edit/" + widget_id + "/"
     options = {
-      url: editUrl
+      url: url
       success: (data) ->
         widget.onEditData(null, data, widget_title)
         $("#edit-widget-form")
           .get(0)
-          .setAttribute("action", editUrl)
+          .setAttribute("action", url)
     }
     $.ajax(options)
     @
 
+  remoteCall: (e, url, params, callback) ->
+    widget = this
+    options = {
+      type: "POST"
+      url: url
+      data: params
+      success: (data) ->
+        callback(data)
+
+    }
+    if callback
+      options["success"] = (data) ->
+        callback(data)
+
+    $.ajax(options)
+    @
+
+  #edit form result handler
   onEditData: (e, params, widget_title) ->
     if params.status == true
       location.reload()
@@ -155,55 +260,3 @@ class @WidgetAdmin
 
     doFormSave: (event) ->
       console.log "Form Clicked"
-
-    setupWidgetStatusHandler: ->
-      @
-
-    setupSortableWidgets: ->
-      # AJAX callback that's triggered when dragging a widget to re-order
-      # Based on mezzanine
-      updateOrdering = (event, ui) ->
-        next = ui.item.next()
-        next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
-        setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
-
-        args = 
-            'ordering_from': $(this).sortable('toArray').toString(),
-            'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
-
-        if args['ordering_from'] != args['ordering_to']
-            # Branch changed - set the new parent ID.
-            args['moved_widget'] = $(ui.item).attr('id')
-            args['moved_parent'] = $(ui.item).parent().parent().attr('id')
-            if args['moved_parent'] == 'widget-sortable'
-                delete args['moved_parent']
-        else
-            delete args['ordering_to']
-            delete args['widget_class_to']
-        
-        $.post(window.__widget_ordering_url, args, (data) ->
-            if not data
-                alert("Error occured: " + data + "\nOrdering wasn't updated.");
-            
-        )
-      stylesheet =`$('style[name=impostor_size]')[0].sheet,
-        rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
-      setPadding = function(atHeight) {
-      rule.cssText = 'border-top-width: '+atHeight+'px';
-      }`
-
-      $('.widget-sortable').sortable({
-        handle: '.ordering', opacity: '.7', stop: updateOrdering,
-        forcePlaceholderSize: true,
-        placeholder: "ui-state-highlight",
-        forcePlaceholderSize: true,
-        placeholder: 'marker',
-        revert: 150,
-        start: (ev, ui) ->
-          setPadding(ui.item.height())
-      }).sortable('option', 'connectWith', '.widget-sortable')
-      $('.widget-sortable').disableSelection()
-    
-      @
-
-

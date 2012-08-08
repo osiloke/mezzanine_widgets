@@ -5,12 +5,29 @@
 
     WidgetAdmin.options_forms = {};
 
+    WidgetAdmin.prototype.widget_status_icon_toggle = {
+      2: {
+        "ico": "icon-thumbs-up",
+        "message": "Published",
+        "prefix": "Unpublish"
+      },
+      1: {
+        "ico": "icon-thumbs-down",
+        "messsage": "Unpublished",
+        "prefix": "Publish"
+      }
+    };
+
     function WidgetAdmin() {
+      this.setupWidgetStatusHandler = __bind(this.setupWidgetStatusHandler, this);
       this.setupWidgetForms = __bind(this.setupWidgetForms, this);
       this.setupAdmin = __bind(this.setupAdmin, this);
       var not_impl;
       not_impl = $('a.not-implemented');
       if (not_impl.length > 0) not_impl.each(function(i) {});
+      $(".widget-edit-link, .widget-delete-link").tooltip({
+        placement: "right"
+      });
       this;
     }
 
@@ -71,22 +88,137 @@
         var widget_id, widget_title;
         widget_id = e.currentTarget.id.split("-")[1];
         widget_title = e.currentTarget.parentElement.parentElement.parentElement.id;
-        return _this.onEditForm(e.currentTarget, widget_id, widget_title);
+        _this.onEditForm(e.currentTarget, widget_id, widget_title);
+        $('#editForm').modal();
+        return e.preventDefault();
       });
       return this;
     };
 
+    WidgetAdmin.prototype.setupWidgetStatusHandler = function() {
+      var status_icons,
+        _this = this;
+      status_icons = this.widget_status_icon_toggle;
+      $(".widget-publish-link").tooltip({
+        placement: "right",
+        title: function() {
+          var widget_status;
+          widget_status = this.id.split("-").slice(-1)[0];
+          return status_icons[widget_status]["prefix"];
+        }
+      });
+      return $(".widget-publish-link").click(function(e) {
+        var callback, id_split, widget_id, widget_title;
+        id_split = e.currentTarget.id.split("-");
+        widget_id = id_split[1];
+        widget_title = $(e.currentTarget).attr('data-original-title');
+        callback = function(data) {
+          var icon, new_class, new_id, old_id, toggle;
+          if (data.status === true) {
+            icon = e.currentTarget.getElementsByTagName("i")[0];
+            toggle = _this.widget_status_icon_toggle[data.published];
+            new_class = toggle["ico"];
+            icon.className = new_class;
+            old_id = e.currentTarget.id;
+            new_id = old_id.slice(0, -1) + data.published;
+            return e.currentTarget.id = new_id;
+          }
+        };
+        _this.remoteCall(e.currentTarget, window.__widget_status_url, {
+          "id": widget_id
+        }, callback);
+        return e.preventDefault();
+      });
+    };
+
+    WidgetAdmin.prototype.setupSortableWidgets = function() {
+      var stylesheet, updateOrdering;
+      updateOrdering = function(event, ui) {
+        var args, next;
+        next = ui.item.next();
+        next.css({
+          '-moz-transition': 'none',
+          '-webkit-transition': 'none',
+          'transition': 'none'
+        });
+        setTimeout(next.css.bind(next, {
+          '-moz-transition': 'border-top-width 0.1s ease-in',
+          '-webkit-transition': 'border-top-width 0.1s ease-in',
+          'transition': 'border-top-width 0.1s ease-in'
+        }));
+        args = {
+          'ordering_from': $(this).sortable('toArray').toString(),
+          'ordering_to': $(ui.item).parent().sortable('toArray').toString()
+        };
+        if (args['ordering_from'] !== args['ordering_to']) {
+          args['moved_widget'] = $(ui.item).attr('id');
+          args['moved_parent'] = $(ui.item).parent().parent().attr('id');
+          if (args['moved_parent'] === 'widget-sortable') {
+            delete args['moved_parent'];
+          }
+        } else {
+          delete args['ordering_to'];
+          delete args['widget_class_to'];
+        }
+        return $.post(window.__widget_ordering_url, args, function(data) {
+          if (!data) {
+            return alert("Error occured: " + data + "\nOrdering wasn't updated.");
+          }
+        });
+      };
+      stylesheet = $('style[name=impostor_size]')[0].sheet,
+          rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
+        setPadding = function(atHeight) {
+        rule.cssText = 'border-top-width: '+atHeight+'px';
+        };
+      $('.widget-sortable').sortable({
+        handle: '.ordering',
+        opacity: '.7',
+        stop: updateOrdering,
+        forcePlaceholderSize: true,
+        placeholder: "ui-state-highlight",
+        forcePlaceholderSize: true,
+        placeholder: 'marker',
+        revert: 150,
+        start: function(ev, ui) {
+          return setPadding(ui.item.height());
+        }
+      }).sortable('option', 'connectWith', '.widget-sortable');
+      $('.widget-sortable').disableSelection();
+      return this;
+    };
+
     WidgetAdmin.prototype.onEditForm = function(link, widget_id, widget_title) {
-      var editUrl, options, widget;
+      var options, url, widget;
       widget = this;
-      editUrl = "/widget/edit/" + widget_id + "/";
+      url = "/widget/edit/" + widget_id + "/";
       options = {
-        url: editUrl,
+        url: url,
         success: function(data) {
           widget.onEditData(null, data, widget_title);
-          return $("#edit-widget-form").get(0).setAttribute("action", editUrl);
+          return $("#edit-widget-form").get(0).setAttribute("action", url);
         }
       };
+      $.ajax(options);
+      return this;
+    };
+
+    WidgetAdmin.prototype.remoteCall = function(e, url, params, callback) {
+      var options, widget;
+      widget = this;
+      options = {
+        type: "POST",
+        url: url,
+        data: params,
+        success: function(data) {
+          return callback(data);
+        }
+      };
+      if (callback) {
+        options["success"] = function(data) {
+          return callback(data);
+        };
+      }
       $.ajax(options);
       return this;
     };
@@ -196,67 +328,6 @@
 
     WidgetAdmin.prototype.doFormSave = function(event) {
       return console.log("Form Clicked");
-    };
-
-    WidgetAdmin.prototype.setupWidgetStatusHandler = function() {
-      return this;
-    };
-
-    WidgetAdmin.prototype.setupSortableWidgets = function() {
-      var stylesheet, updateOrdering;
-      updateOrdering = function(event, ui) {
-        var args, next;
-        next = ui.item.next();
-        next.css({
-          '-moz-transition': 'none',
-          '-webkit-transition': 'none',
-          'transition': 'none'
-        });
-        setTimeout(next.css.bind(next, {
-          '-moz-transition': 'border-top-width 0.1s ease-in',
-          '-webkit-transition': 'border-top-width 0.1s ease-in',
-          'transition': 'border-top-width 0.1s ease-in'
-        }));
-        args = {
-          'ordering_from': $(this).sortable('toArray').toString(),
-          'ordering_to': $(ui.item).parent().sortable('toArray').toString()
-        };
-        if (args['ordering_from'] !== args['ordering_to']) {
-          args['moved_widget'] = $(ui.item).attr('id');
-          args['moved_parent'] = $(ui.item).parent().parent().attr('id');
-          if (args['moved_parent'] === 'widget-sortable') {
-            delete args['moved_parent'];
-          }
-        } else {
-          delete args['ordering_to'];
-          delete args['widget_class_to'];
-        }
-        return $.post(window.__widget_ordering_url, args, function(data) {
-          if (!data) {
-            return alert("Error occured: " + data + "\nOrdering wasn't updated.");
-          }
-        });
-      };
-      stylesheet = $('style[name=impostor_size]')[0].sheet,
-        rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
-      setPadding = function(atHeight) {
-      rule.cssText = 'border-top-width: '+atHeight+'px';
-      };
-      $('.widget-sortable').sortable({
-        handle: '.ordering',
-        opacity: '.7',
-        stop: updateOrdering,
-        forcePlaceholderSize: true,
-        placeholder: "ui-state-highlight",
-        forcePlaceholderSize: true,
-        placeholder: 'marker',
-        revert: 150,
-        start: function(ev, ui) {
-          return setPadding(ui.item.height());
-        }
-      }).sortable('option', 'connectWith', '.widget-sortable');
-      $('.widget-sortable').disableSelection();
-      return this;
     };
 
     return WidgetAdmin;
