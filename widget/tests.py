@@ -13,7 +13,6 @@ from mezzanine.pages.models import RichTextPage
 
 from widget.forms import WidgetOptionsForm
 from widget.models import Widget
-from widget.models import WidgetSlot
 from widget.widget_pool import get_widget
 from widget.widget_renderer import render_widgets_for_slot
 
