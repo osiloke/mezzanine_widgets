@@ -131,7 +131,7 @@ def create_widget(request, **kwargs):
             try:
 #                widget_obj = Page.objects.published(request.user)\
 #                                .get(id=request.POST["widget"])
-                options_form = WidgetOptionsForm(widget_class, request.POST)
+                options_form = WidgetOptionsForm(widget_class, request.POST, request.FILES)
                 if options_form.is_valid():
                     try:
                         "update widget if it exists"

@@ -54,6 +54,8 @@ class WidgetClassBase(object):
     def render(self, **kwargs):
         raise NotImplementedError("Render function needs to be implemented")
 
+    def cleanup(self, **kwargs):
+        return True
 
 class WidgetModel(SiteRelated):
     widget = models.ForeignKey('widget.Widget')

@@ -26,6 +26,7 @@ HIDDEN = 12
 NUMBER = 13
 URL = 14
 RICHTEXTAREA = 15
+IMAGE = 16
 # Names for all available field types.
 NAMES = (
     (TEXT, _("Single line text")),
@@ -43,6 +44,7 @@ NAMES = (
     (DATE_TIME, _("Date/time")),
     (HIDDEN, _("Hidden")),
     (RICHTEXTAREA, _("Multi line text")),
+    (IMAGE, _("Image")),
     )
 
 # Field classes for all available field types.
@@ -62,6 +64,7 @@ CLASSES = {
     HIDDEN: forms.CharField,
     NUMBER: forms.FloatField,
     URL: forms.URLField,
+    IMAGE: forms.ImageField,
     }
 
 # Widgets for field types where a specialised widget is required.
