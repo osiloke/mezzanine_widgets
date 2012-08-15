@@ -20,17 +20,17 @@ class OptionsAdmin(TabularInline):
 
 class WidgetAdmin(OwnableAdmin):
     inlines = [OptionsAdmin,]
-    list_display = ("display_title", "status", "widgetslot", "admin_link")
+    list_display = ("display_title", "status", "widgetslot", "admin_link", "page_less")
     list_display_links = ("display_title",)
-    list_editable = ("status",)
+    list_editable = ("status", "page_less",)
     list_filter = ("status","widgetslot",)
-    search_fields = ("display_title","widget_class",)
+    search_fields = ("display_title","widget_class", "page_less",)
     date_hierarchy = "publish_date"
     radio_fields = {"status": admin.HORIZONTAL}
     fieldsets = (
         (None, {"fields": ["page","display_title", "status",
             ("publish_date", "expiry_date"), ]}),
-        (_("Widget"), {"fields": ("widgetslot", "widget_class")}),
+        (_("Widget"), {"fields": ("widgetslot", "widget_class", "page_less")}),
     )
     
     def save_model(self, request, obj, form, change):
