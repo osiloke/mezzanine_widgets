@@ -1,4 +1,4 @@
-
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -33,7 +33,7 @@ def get_widget_list_for_widget(widget):
     except Exception:
         return None
 
-
+@login_required
 @admin_can(Widget, action="change", fail404=True)
 def edit_widget(request, **kwargs):
     try:
@@ -71,7 +71,7 @@ def edit_widget(request, **kwargs):
                             mimetype='application/json')
     except Exception:
         raise
-
+@login_required
 @admin_can(Widget)
 def widget_list(request):
     """
@@ -111,6 +111,7 @@ def widget_list(request):
             return HttpResponseRedirect("/")
 
 
+@login_required
 @admin_can(Widget, fail404=True)
 def create_widget(request, **kwargs):
     """
@@ -131,6 +132,7 @@ def create_widget(request, **kwargs):
             try:
 #                widget_obj = Page.objects.published(request.user)\
 #                                .get(id=request.POST["widget"])
+                page = Page.objects.get(id=request.POST["page"])
                 options_form = WidgetOptionsForm(widget_class, request.POST, request.FILES)
                 if options_form.is_valid():
                     try:
@@ -139,7 +141,7 @@ def create_widget(request, **kwargs):
                     except Exception:
                         widget = Widget(widgetslot=slot,
                                         widget_class=widget_class,
-                                        user=request.user)
+                                        user=request.user, page=page)
                         widget.save()
 
                     if options_form.save(widget=widget):
@@ -155,6 +157,7 @@ def create_widget(request, **kwargs):
 create_widget = require_POST(create_widget)
 
 
+@login_required
 @admin_can(Widget, action="change")
 def delete_widget(request, id):
     try:
@@ -163,7 +166,7 @@ def delete_widget(request, id):
     except Exception:
         pass
 
-
+@login_required
 @ajax_view()
 @admin_can(Widget)
 def widget_options(request, type):
@@ -181,7 +184,7 @@ def widget_options(request, type):
 
     return data
 
-
+@login_required
 @admin_can(Widget)
 def create_success(request):
     return render_to_response("widget/success.html", {})
@@ -220,7 +223,7 @@ def widget_ordering(request):
             data = {'status':False, 'error':str(e)}
     return HttpResponse(json_serializer.encode(data),\
         mimetype='application/json')
-
+@login_required
 @require_http_methods(["POST"])
 @admin_can(Widget, action="change")
 def widget_status(request):
