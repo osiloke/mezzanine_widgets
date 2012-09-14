@@ -39,9 +39,16 @@
 
 .widget_holder { -moz-transition:border-top-width 0.1s ease-in; -webkit-transition:border-top-width 0.1s ease-in; border-top:0px solid rgba(0,0,0,0); }
 .marker {
+    width:100%;
     float:left;
     opacity:0.0;
     background: #f0f0f0;
-    border:1px dashed #ddd;
+    border:1px dashed #000;
     visibility: visible !important;
+}
+.placeholder {
+    width: 100%;
+    /*margin: -2px;*/
+    background: #717ca1;
+    height: 1em;
 }

@@ -1,5 +1,6 @@
 
-from widget.models import  Widget, WidgetModel
+from widget.models import  Widget
+from widget.utilities import get_widget_model_queryset
 from widget.widget_pool import get_widget
 
 from django.template.loader import render_to_string, get_template_from_string
@@ -65,16 +66,4 @@ def render_widgets_for_slot(slot, widget_context):
 
     return rendered_widgets
 
-def get_widget_model_queryset(widget, widget_class):
-    try:
-        if hasattr(widget_class, 'model'):
-            'Widget class is associated with a model'
-            model = widget_class.model
-            if model and WidgetModel in (model.__bases__):
-                'The widget model has to subclass the WidgetModel class'
-                model_queryset = model.objects.filter(widget=widget)
-                if len(model_queryset):
-                    return model_queryset
-    except Exception:
-        raise
-    return None
+

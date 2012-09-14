@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _, ugettext
 from django.db import models
 
 from mezzanine.conf import settings
-from mezzanine.core.managers import PublishedManager, SearchableManager
+from mezzanine.core.managers import PublishedManager, SearchableManager, CurrentSiteManager
 from mezzanine.core.models import Orderable, Displayable, \
     CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable, SiteRelated
+from easyweb.utilities.admin import reversion_models
 from .option_fields import TEXT
 from mezzanine.pages.models import Page
 
@@ -34,6 +34,7 @@ class WidgetClassBase(object):
     """
     Base class for all widget plugin classes
     """
+    editableFields = ""
     template = None
     raw = False 
 
@@ -61,7 +62,7 @@ class WidgetModel(SiteRelated):
     widget = models.ForeignKey('widget.Widget')
 
     def __unicode__(self):
-        return u'Model for widget <%s>' % widget.widget_class
+        return u'Model for widget <%s>' % self.widget.widget_class
 
 
 class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
@@ -70,7 +71,8 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
     and ``SearchableManager`` for the ``Widget`` model.
 
     """
-    pass
+    def widget_models(self):
+        return WidgetModel.objects.filter(widget=self)
 
 
 class Widget(Orderable, Ownable, SiteRelated):
@@ -92,7 +94,7 @@ class Widget(Orderable, Ownable, SiteRelated):
     expiry_date = models.DateTimeField(_("Expires on"),
         help_text=_("With published checked, won't be shown after this time"),
         blank=True, null=True)
-#    site = models.ForeignKey(Site, editable=False)
+
 
     objects = WidgetManager()
     search_fields = {"keywords": 10, "display_title": 5}

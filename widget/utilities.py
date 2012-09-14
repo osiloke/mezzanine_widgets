@@ -1,6 +1,10 @@
 from copy import copy
+from exceptions import Exception
 from django.http import HttpResponse
- 
+from django.template import Template
+from widget.forms import ModelFormForWidget
+from widget.models import WidgetModel
+
 
 __author__ = 'osilocks'
 
@@ -222,3 +226,55 @@ def ajaxerror(form):
         'errors': final_errors,
     })
     return data
+
+
+def get_model_form_for_widget(widget_class_obj, data={}, widget=None, instance=None):
+    if hasattr(widget_class_obj, "model") and hasattr(widget_class_obj, "single"):
+        if widget:
+            fields = widget_class_obj.editableFields + ",widget"
+        else:
+            fields = widget_class_obj.editableFields
+
+        data_data = data.get("POST",None)
+        if data_data:
+            data_data = dict((key,value) for key, value in data_data.iteritems())
+            if widget:
+                data_data.update({"widget":widget.id})
+
+        model_form = ModelFormForWidget(widget_class_obj.model, fields=tuple(fields.split(',')), widget=widget) \
+                            (data_data, files=data.get("FILES", None), instance=instance)
+
+        return model_form
+    return None
+
+
+def get_widget_list_for_widget(widget):
+    try:
+        all_classes = get_all_widget_widgets()
+        list = Template('widget/list.html')
+        c = {'widgets': all_classes, 'widget_id': widget.id}
+
+        return c
+    except Exception:
+        return None
+
+
+def hasModel(widget_class_obj):
+    return hasattr(widget_class_obj, "model") and hasattr(widget_class_obj, "single")
+
+
+def get_widget_model_queryset(widget, widget_class):
+    try:
+        if hasattr(widget_class, 'model'):
+            'Widget class is associated with a model'
+            model = widget_class.model
+            if model and WidgetModel in (model.__bases__):
+                'The widget model has to subclass the WidgetModel class'
+                model_queryset = model.objects.filter(widget=widget)
+                if len(model_queryset):
+                    if hasattr(widget_class, 'single'):
+                        return model_queryset[0]
+                    return model_queryset
+    except Exception:
+        raise
+    return None

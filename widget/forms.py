@@ -2,6 +2,7 @@ from datetime import datetime
 from os.path import join
 
 from django import forms
+from django.forms.widgets import HiddenInput
 from mezzanine.core.models import CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT
 
 from widget.widget_pool import get_widget_options, WidgetHasNoOptions
@@ -9,9 +10,9 @@ from widget.models import WidgetOptionEntry, Widget
 
 from mezzanine.pages.models import Page
 import option_fields as fields
-from mezzanine.conf import settings
-from mezzanine.forms.forms import fs
 
+from easyweb.apps.core import widget_fields
+from mezzanine.conf import settings
 from uuid import uuid4
 
 
@@ -21,6 +22,8 @@ class WidgetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(WidgetForm, self).__init__(*args, **kwargs)
         self.uuid = str(uuid4())
+        self.fields["page"].queryset = Page.objects.get_query_set()
+
 
     class Meta:
         model = Widget
@@ -116,3 +119,46 @@ class WidgetOptionsForm(forms.Form):
                     option.value = value
                     option.save()
         return True
+
+
+def ModelFormForWidget(widget_model, fields=None, widget=None):
+    meta_data = { "model":widget_model, }
+    #Left over from mezzanine
+    try:
+        widget_overrides = settings.WIDGET_OVERRIDES
+    except AttributeError:
+        widget_overrides = {}
+
+    if fields:
+        meta_data.update({"fields": fields})
+
+    if widget:
+        widgets = {
+            'widget': HiddenInput(),
+            }
+        meta_data.update({"widgets": widgets})
+
+    meta = type('Meta', (), meta_data)
+
+    class WidgetModelForm(forms.ModelForm):
+        def __init__(self, *args, **kwargs):
+            super(WidgetModelForm, self).__init__(*args, **kwargs)
+            self.uuid = str(uuid4())
+            for f in self.fields.keys():
+#                'Make page model content type id a hidden field'
+#                if parent_model == f: self.fields[f].widget = forms.HiddenInput()
+#                if f in hidden_fields: self.fields[f].widget = forms.HiddenInput()
+                field_class = self.fields[f].__class__
+                try:
+                    field_type = widget_overrides[field_class]
+                except KeyError:
+                    pass
+                else:
+                    self.fields[f].widget = widget_fields.WIDGETS[field_type]()
+                css_class = self.fields[f].widget.attrs.get("class", "")
+                css_class += " " + field_class.__name__.lower()
+                self.fields[f].widget.attrs["class"] = css_class
+                self.fields[f].widget.attrs["id"] = "%s" % (f)
+
+    modelform_class = type('modelform', (WidgetModelForm,), {"Meta": meta})
+    return modelform_class

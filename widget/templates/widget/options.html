@@ -6,4 +6,11 @@
         {% endif %}
     </div>
 {% endfor %}
-
+{% for field in model_form %}
+    <div class="controls" {% if field.is_hidden %} style="display:none;"{% endif %}>
+    {{ field.label_tag }}{{ field }}{{ field.errors }}
+    {% if field.help_text %}
+    <p class="helptext">{{ field.help_text }}</p>
+    {% endif %}
+    </div>
+{% endfor %}

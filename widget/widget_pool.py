@@ -58,6 +58,14 @@ def get_widget(name):
     except Exception:
         raise WidgetNotFound
 
+def get_widget_model(name):
+    try:
+        w = get_widget(name)
+        return w.model
+    except WidgetNotFound:
+        raise
+    except Exception:
+        return None
 
 def get_all_page_widgets():
     autodiscover()
