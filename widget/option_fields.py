@@ -1,7 +1,7 @@
 
 from django import forms
 from django.forms.extras import SelectDateWidget
-from django.utils.importlib import import_module
+
 from django.utils.translation import ugettext_lazy as _
 
 from mezzanine.conf import settings
@@ -27,6 +27,7 @@ NUMBER = 13
 URL = 14
 RICHTEXTAREA = 15
 IMAGE = 16
+
 # Names for all available field types.
 NAMES = (
     (TEXT, _("Single line text")),
@@ -76,7 +77,14 @@ WIDGETS = {
     DATE: SelectDateWidget,
     DATE_TIME: SplitSelectDateTimeWidget,
     HIDDEN: forms.HiddenInput,
+    IMAGE: forms.FileInput
     }
+
+#tiny hack to use IMAGE WIDGET CLASS if it exists
+try:
+    WIDGETS.update({IMAGE: import_dotted_path(settings.IMAGE_FIELD_WIDGET_CLASS)})
+except AttributeError:
+    pass
 
 # Some helper groupings of field types.
 CHOICES = (CHECKBOX, CHECKBOX_MULTIPLE, SELECT,

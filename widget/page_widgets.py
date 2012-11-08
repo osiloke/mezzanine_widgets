@@ -1,4 +1,3 @@
-from widget import widget_pool
 from widget.models import WidgetOption as opt, WidgetClassBase
 
 from django.utils.translation import ugettext_lazy as _
@@ -9,12 +8,12 @@ class TestWidget(WidgetClassBase):
     raw = True
     default_placeholder = "test"
     options = [
-        opt(name="Option 1"),
-        opt(name="Option 2"),
-        opt(name="Option 3")
+        opt(name="First"),
+        opt(name="Second"),
+        opt(name="Third")
     ]
 
-    def render(self, context, slot, queryset, **kwargs):
+    def render(self, context, slot, queryset=None, options=None, **kwargs):
         return context
 
     class Meta:
@@ -23,4 +22,3 @@ class TestWidget(WidgetClassBase):
         name = _("Test")
         author = 'Osiloke Emoekpere'
 
-#widget_pool.register_widget(TestWidget)

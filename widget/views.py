@@ -63,7 +63,7 @@ def edit_widget(request, **kwargs):
                              for option in widget.options.all()))
             options_form = WidgetOptionsForm(widget.widget_class, \
                             data=initial)
-
+            extra_js = []
             o = get_template("widget/options.html")
             ctx.update({'options_form': options_form})
             if containsModel:
@@ -71,10 +71,11 @@ def edit_widget(request, **kwargs):
                 model_form = get_model_form_for_widget(widget_class_obj, instance=obj, widget=widget)
                 if model_form:
                     ctx.update({'model_form': model_form})
+                    extra_js += model_form.extra_js
 
             options = o.render(ctx)
 
-            extra_js = options_form.extra_js
+            extra_js += options_form.extra_js
             data = {'valid': False, 'type': 'ef', 'data': options, 'extra_js': extra_js}
 
         return HttpResponse(json_serializer.encode(data), \
@@ -109,15 +110,18 @@ def widget_list(request):
             "Widget has options, lets generate the options form"
             options_form = WidgetOptionsForm(widget_class)
             if widget_form.is_valid():
+                extra_js = []
                 o = get_template("widget/options.html")
                 ctx.update({'options_form': options_form,
                             'widget_class': widget_class_obj })
                 model_form = get_model_form_for_widget(widget_class_obj)
                 if model_form:
                     ctx.update({'model_form': model_form})
+                    extra_js += model_form.extra_js
 
                 options = o.render(ctx)
-                data = {'valid': False, 'type':'fi', 'data':options}
+                extra_js += options_form.extra_js
+                data = {'valid': False, 'type':'fi', 'data':options, 'extra_js': extra_js}
             else:
                 data = ajaxerror(widget_form)
             return HttpResponse(json_serializer.encode(data), mimetype='application/json')
@@ -149,7 +153,7 @@ def create_widget(request, **kwargs):
             slot = request.POST["widgetslot"]
             try:
                 page = Page.objects.get(id=request.POST["page"])
-                print page
+
                 ### HANDLE OPTIONS FORM ####
                 options_form = WidgetOptionsForm(widget_class, request.POST, request.FILES)
                 widget = None

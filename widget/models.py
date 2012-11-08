@@ -8,7 +8,7 @@ from mezzanine.conf import settings
 from mezzanine.core.managers import PublishedManager, SearchableManager, CurrentSiteManager
 from mezzanine.core.models import Orderable, Displayable, \
     CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable, SiteRelated
-from easyweb.utilities.admin import reversion_models
+
 from .option_fields import TEXT
 from mezzanine.pages.models import Page
 
@@ -187,7 +187,7 @@ class WidgetOptionEntry(SiteRelated):
     value = models.CharField(max_length=settings.FORMS_FIELD_MAX_LENGTH)
 
     def __unicode__(self):
-        return '' or self.name
+        return '' or '%s [%s]' % (self.name, self.value)
 
     class Meta:
         verbose_name = _("Widget Option entry")

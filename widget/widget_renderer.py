@@ -1,4 +1,4 @@
-
+import os
 from widget.models import  Widget
 from widget.utilities import get_widget_model_queryset
 from widget.widget_pool import get_widget
@@ -13,9 +13,8 @@ def render_template(context, template, raw=False):
     """
     rendered = ''
     if raw:
-        template = get_template_from_string(template)
-        template.name = "custom_template"
-        rendered = template.render(context)
+        template_object = get_template_from_string(template, name="custom_template_" + os.urandom(32))
+        rendered = template_object.render(context)
     else:
         if isinstance(template, str):
             rendered = render_to_string(template, context)
@@ -57,7 +56,7 @@ def render_widgets_for_slot(slot, widget_context):
             queryset = get_widget_model_queryset(widget, widget_class)
             rendered_widget = render_template(widget_class\
                     ._render(widget_context, slot, queryset, widget_options),\
-                              widget_class.template, widget_class.raw)
+                              widget_class.template, raw=widget_class.raw)
 
 
             rendered_widgets.append({'widget': widget, \
