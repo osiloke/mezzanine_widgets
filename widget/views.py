@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.http import require_POST
@@ -81,7 +81,7 @@ def edit_widget(request, **kwargs):
         return HttpResponse(json_serializer.encode(data), \
                             mimetype='application/json')
     except Exception:
-        raise
+        raise Http404()
 
 
 @login_required
@@ -128,73 +128,67 @@ def create_widget(request, **kwargs):
     class or displays a select screen
     """
     data = {}
-    if not is_editable(Widget(), request):
-        response = _("Permission denied")
-        data = {
-            'error': {"_all_": [response]},
-            'permission': False
-        }
-    else:
-        if request.POST:
-            widget_class = request.POST["widget_class"]
-            widget_class_obj = get_widget(widget_class)
-            containsModel = hasModel(widget_class_obj)
+    widget_class = request.POST["widget_class"]
+    widget_class_obj = get_widget(widget_class)
+    containsModel = hasModel(widget_class_obj)
 
-            slot = request.POST["widgetslot"]
+    slot = request.POST["widgetslot"]
+    try:
+        page = Page.objects.get(id=request.POST["page"])
+
+        ### HANDLE OPTIONS FORM ####
+        options_form = WidgetOptionsForm(widget_class, request.POST, request.FILES)
+        widget = None
+        if options_form.is_valid():
             try:
-                page = Page.objects.get(id=request.POST["page"])
+                "update widget if it exists"
+                widget = Widget.objects.get(id=request.POST["widget"])
+            except Exception:
+                widget = Widget(widgetslot=slot,
+                                widget_class=widget_class,
+                                user=request.user, page=page)
+                widget.save()
 
-                ### HANDLE OPTIONS FORM ####
-                options_form = WidgetOptionsForm(widget_class, request.POST, request.FILES)
-                widget = None
-                if options_form.is_valid():
-                    try:
-                        "update widget if it exists"
-                        widget = Widget.objects.get(id=request.POST["widget"])
-                    except Exception:
-                        widget = Widget(widgetslot=slot,
-                                        widget_class=widget_class,
-                                        user=request.user, page=page)
-                        widget.save()
-
-                    if options_form.save(widget=widget):
-                        data = {'valid': True, 'form': 'saved'}
-                elif options_form.errors:
-                    data = ajaxerror(options_form)
+            if options_form.save(widget=widget):
+                data = {'valid': True, 'form': 'saved'}
+        elif options_form.errors:
+            data = ajaxerror(options_form)
 
 
-                if widget is None and not options_form.hasOptions and containsModel:
-                    try:
-                        "update widget if it exists"
-                        widget = Widget.objects.get(id=request.POST["widget"])
-                    except Exception:
-                        widget = Widget(widgetslot=slot,
-                            widget_class=widget_class,
-                            user=request.user, page=page)
-                        widget.save()
+        if widget is None and not options_form.hasOptions and containsModel:
+            try:
+                "update widget if it exists"
+                widget = Widget.objects.get(id=request.POST["widget"])
+            except Exception:
+                widget = Widget(widgetslot=slot,
+                    widget_class=widget_class,
+                    user=request.user, page=page)
+                widget.save()
 
 
-                model_widget = None
-                if widget: model_widget = widget
-                model_form = get_model_form_for_widget(widget_class_obj, {"POST":request.POST, "FILES":request.FILES}, widget=model_widget)
-                if model_form:
-                    try:
-                        if model_form.is_valid():
-                            saved_obj=model_form.save()
-                            data.update({"obj": saved_obj.id})
-                        elif model_form.errors:
-                            model_data = ajaxerror(model_form)
-                            errors = dict(data.get("errors", {}), **model_data["errors"])
-                            data = {'valid': False, "errors": errors }
-                    except Exception:
-                        raise
-            except Exception, e:
-                data = {"valid": False, "errors": { "_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
-    if data.valid:
-        return HttpResponse(json_serializer.encode(data),\
-                                 mimetype='application/json')
-    return HttpResponseBadRequest(json_serializer.encode(data),\
-        mimetype='application/json')
+        model_widget = None
+        if widget: model_widget = widget
+        model_form = get_model_form_for_widget(widget_class_obj,
+            {"POST": request.POST, "FILES": request.FILES},
+            widget=model_widget
+        )
+        if model_form:
+            try:
+                if model_form.is_valid():
+                    saved_obj=model_form.save()
+                    data.update({"obj": saved_obj.id})
+                elif model_form.errors:
+                    model_data = ajaxerror(model_form)
+                    errors = dict(data.get("errors", {}), **model_data["errors"])
+                    data = {'valid': False, "errors": errors }
+            except Exception:
+                raise
+    except Exception, e:
+        data = {"valid": False, \
+                "errors": { "_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
+    if "valid" in data and data["valid"]:
+        return HttpResponse(json_serializer.encode(data), mimetype='application/json')
+    return HttpResponseBadRequest(json_serializer.encode(data), mimetype='application/json')
 create_widget = require_POST(create_widget)
 
 

@@ -55,6 +55,7 @@ def can(action, obj, request ):
         return getattr(obj, "is_%sable"% action)(request)
     else:
         p = '%s.%s_%s' % (app_label, action, model_name)
+#        print "Check that %s has perm %s -> %s" % (request.user, p, request.user.has_perm(p))
         return request.user.is_active and request.user.has_perm(p)
     return False
 
