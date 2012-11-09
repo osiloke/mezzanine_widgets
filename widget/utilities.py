@@ -192,7 +192,9 @@ def admin_can(model, action="add", fail404=False, ajax=False):
             else:
                 response = view(request, *args, **kwargs)
                 if not type(response) is HttpResponse:
-                    return HttpResponseNotFound("No data was returned")
+                    if response is None:
+                        return HttpResponseBadRequest("No data was returned")
+                    return HttpResponse(response)
                 else:
                     return response
 

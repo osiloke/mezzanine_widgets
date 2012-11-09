@@ -92,42 +92,32 @@ def widget_list(request):
     class or displays a select screen
     """
     data = {}
-    if not is_editable(Widget(), request):
-        response = _("Permission denied")
-        data = {
-            'error': [response],
-            'permission': False
-        }
+    #widget class exists so render widget options if any
+    ctx = RequestContext(request)
+    widget_form = WidgetForm(request.POST)
+    widget_class = request.POST["widget_class"]
+    widget_class_obj = get_widget(widget_class)
+
+
+    #Widget has options, lets generate the options form
+    options_form = WidgetOptionsForm(widget_class)
+    if widget_form.is_valid():
+        extra_js = []
+        o = get_template("widget/options.html")
+        ctx.update({'options_form': options_form,
+                    'widget_class': widget_class_obj })
+        model_form = get_model_form_for_widget(widget_class_obj)
+        if model_form:
+            ctx.update({'model_form': model_form})
+            extra_js += model_form.extra_js
+
+        options = o.render(ctx)
+        extra_js += options_form.extra_js
+        data = {'valid': False, 'type':'fi', 'data':options, 'extra_js': extra_js}
     else:
-        if request.POST:
-            "widget class exists so render widget options if any"
-            ctx = RequestContext(request)
-            widget_form = WidgetForm(request.POST)
-            widget_class = request.POST["widget_class"]
-            widget_class_obj = get_widget(widget_class)
-
-
-            "Widget has options, lets generate the options form"
-            options_form = WidgetOptionsForm(widget_class)
-            if widget_form.is_valid():
-                extra_js = []
-                o = get_template("widget/options.html")
-                ctx.update({'options_form': options_form,
-                            'widget_class': widget_class_obj })
-                model_form = get_model_form_for_widget(widget_class_obj)
-                if model_form:
-                    ctx.update({'model_form': model_form})
-                    extra_js += model_form.extra_js
-
-                options = o.render(ctx)
-                extra_js += options_form.extra_js
-                data = {'valid': False, 'type':'fi', 'data':options, 'extra_js': extra_js}
-            else:
-                data = ajaxerror(widget_form)
-            return HttpResponse(json_serializer.encode(data), mimetype='application/json')
-
-        else:
-            return HttpResponseBadRequest(mimetype='application/json')
+        data = ajaxerror(widget_form)
+    return HttpResponse(json_serializer.encode(data), mimetype='application/json')
+create_widget = require_POST(widget_list)
 
 
 @login_required
@@ -205,7 +195,6 @@ def create_widget(request, **kwargs):
                                  mimetype='application/json')
     return HttpResponseBadRequest(json_serializer.encode(data),\
         mimetype='application/json')
-
 create_widget = require_POST(create_widget)
 
 
