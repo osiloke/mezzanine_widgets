@@ -1,6 +1,6 @@
 from copy import copy
 from exceptions import Exception
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound
 from django.template import Template
 from widget.forms import ModelFormForWidget
 from widget.models import WidgetModel
@@ -175,7 +175,7 @@ def ajax_view():
         return wraps(view)(_view)
     return _dec
 
-def admin_can(model, action="add", fail404=False):
+def admin_can(model, action="add", fail404=False, ajax=False):
     def _dec(view):
         def _view(request, *args, **kwargs):
             redirect_field_name = "next"
@@ -188,11 +188,11 @@ def admin_can(model, action="add", fail404=False):
             if not can(action, model, request):
                 if fail404:
                     raise Http404
-                return HttpResponseRedirect(url)
+                return HttpResponseForbidden("You are not authorized to perform this action")
             else:
                 response = view(request, *args, **kwargs)
                 if not type(response) is HttpResponse:
-                    return HttpResponseRedirect(url)
+                    return HttpResponseNotFound("No data was returned")
                 else:
                     return response
 

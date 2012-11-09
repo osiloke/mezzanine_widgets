@@ -6,7 +6,7 @@ from django.db import models
 
 from mezzanine.conf import settings
 from mezzanine.core.managers import PublishedManager, SearchableManager, CurrentSiteManager
-from mezzanine.core.models import Orderable, Displayable, \
+from mezzanine.core.models import Orderable, \
     CONTENT_STATUS_CHOICES, CONTENT_STATUS_DRAFT, Ownable, SiteRelated
 
 from .option_fields import TEXT
@@ -14,6 +14,8 @@ from mezzanine.pages.models import Page
 
 from widget.fields import PageWidgetClass
 
+from django.db.models import Q
+from mezzanine.utils.timezone import now
 
 class WidgetOption(object):
     """
@@ -67,10 +69,26 @@ class WidgetModel(SiteRelated):
 
 class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
     """
-    Manually combines ``CurrentSiteManager``, ``PublishedManager``
-    and ``SearchableManager`` for the ``Widget`` model.
+    Manually combines ``CurrentSiteManager``, ``SearchableManager`` and provides a modified
+    published filter which takes into cconsideration the users change permission
+    for the ``Widget`` model.
 
     """
+    def published(self, for_user=None):
+        """
+        For non-staff/permissionless users, return items with a published status and
+        whose publish and expiry dates fall before and after the
+        current date when specified.
+        """
+        from mezzanine.core.models import CONTENT_STATUS_PUBLISHED
+
+        if for_user is not None and bool(for_user.is_staff
+                or for_user.has_perm("widget.change_widget")):
+            return self.all()
+        return self.filter(
+            Q(publish_date__lte=now()) | Q(publish_date__isnull=True),
+            Q(expiry_date__gte=now()) | Q(expiry_date__isnull=True),
+            Q(status=CONTENT_STATUS_PUBLISHED))
     def widget_models(self):
         return WidgetModel.objects.filter(widget=self)
 

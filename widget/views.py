@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.http import require_POST
@@ -85,7 +85,7 @@ def edit_widget(request, **kwargs):
 
 
 @login_required
-@admin_can(Widget)
+@admin_can(Widget, action="change")
 def widget_list(request):
     """
     Renders widget options based on supplied widget
@@ -127,7 +127,7 @@ def widget_list(request):
             return HttpResponse(json_serializer.encode(data), mimetype='application/json')
 
         else:
-            return HttpResponseRedirect("/")
+            return HttpResponseBadRequest(mimetype='application/json')
 
 
 @login_required
@@ -200,9 +200,11 @@ def create_widget(request, **kwargs):
                         raise
             except Exception, e:
                 data = {"valid": False, "errors": { "_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
-
-    return HttpResponse(json_serializer.encode(data),\
+    if data.valid:
+        return HttpResponse(json_serializer.encode(data),\
                                  mimetype='application/json')
+    return HttpResponseBadRequest(json_serializer.encode(data),\
+        mimetype='application/json')
 
 create_widget = require_POST(create_widget)
 
