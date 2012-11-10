@@ -1,14 +1,15 @@
 from django import forms
 from django.forms.widgets import HiddenInput
 
-from widget.widget_pool import get_widget_options, WidgetHasNoOptions
+from widget.widget_pool import get_widget_options, WidgetHasNoOptions, get_all_page_widgets
 from widget.models import WidgetOptionEntry, Widget
 
 from mezzanine.pages.models import Page
-import option_fields
-
 from mezzanine.conf import settings
+
 from uuid import uuid4
+
+import option_fields
 
 
 class WidgetForm(forms.ModelForm):
@@ -17,6 +18,7 @@ class WidgetForm(forms.ModelForm):
         super(WidgetForm, self).__init__(*args, **kwargs)
         self.uuid = str(uuid4())
         self.fields["page"].queryset = Page.objects.get_query_set()
+        self.fields["widget_class"].choices = get_all_page_widgets(settings.RESTRICTED_WIDGETS)
 
 
     class Meta:
@@ -36,6 +38,8 @@ class WidgetOptionsForm(forms.Form):
     """
     extra_js = []
     hasOptions = False
+
+#    widget_class = forms.HiddenInput(choices=get_all_page_widgets(settings.RESTRICTED_WIDGETS))
 
     def __init__(self, widget_class, *args, **kwargs):
         """

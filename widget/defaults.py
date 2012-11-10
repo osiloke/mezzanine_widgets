@@ -9,3 +9,14 @@ from django.utils.translation import ugettext as _
 #    editable=False,
 #    default="django.forms.FileInput",
 #)
+
+register_setting(
+    name="RESTRICTED_WIDGETS",
+    label="Restricted Widgets",
+    description=_("Widgets which cannot be added by a client "),
+    editable=False,
+    append=True,
+    default=[
+        "TestWidget"
+    ],
+)
