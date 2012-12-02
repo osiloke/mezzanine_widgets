@@ -94,7 +94,10 @@ def widget_list(request):
     data = {}
     #widget class exists so render widget options if any
     ctx = RequestContext(request)
-    widget_form = WidgetForm(request.POST)
+    if request.user.is_superuser:
+        widget_form = WidgetForm(request.POST, restrict_list=None)
+    else:
+        widget_form = WidgetForm(request.POST)
     widget_class = request.POST["widget_class"]
     widget_class_obj = get_widget(widget_class)
 
