@@ -15,7 +15,7 @@ import option_fields
 class WidgetForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        restrict_list = kwargs.pop("restrict_list", None)
+        restrict_list = kwargs.pop("restrict_list", settings.RESTRICTED_WIDGETS)
         super(WidgetForm, self).__init__(*args, **kwargs)
         self.uuid = str(uuid4())
         self.fields["page"].queryset = Page.objects.get_query_set()
