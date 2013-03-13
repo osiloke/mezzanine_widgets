@@ -11,14 +11,15 @@ from mezzanine.template import get_template
 from mezzanine.utils.views import is_editable
 from mezzanine.core.models import CONTENT_STATUS_PUBLISHED, CONTENT_STATUS_DRAFT
 
-from widget.utilities import  LazyEncoder, ajax_view, get_model_form_for_widget, hasModel, get_widget_model_queryset
+from widget.utilities import LazyEncoder, ajax_view, get_model_form_for_widget, hasModel, get_widget_model_queryset
 from widget.forms import WidgetForm, WidgetOptionsForm
-from widget.widget_pool import  get_widget, WidgetHasNoOptions
+from widget.widget_pool import get_widget, WidgetHasNoOptions
 from widget.utilities import admin_can
 from widget.models import Widget
 from widget.utilities import ajaxerror
 
 json_serializer = LazyEncoder()
+
 
 @login_required
 @admin_can(Widget, action="change", fail404=True)
@@ -32,7 +33,7 @@ def edit_widget(request, **kwargs):
         if request.POST:
             "get form populated with widget options"
             options_form = WidgetOptionsForm(widget.widget_class, \
-                                request.POST)
+                                             request.POST)
             if options_form.is_valid():
                 if options_form.save(widget=widget):
                     data = {'valid': True, 'form': 'saved'}
@@ -41,15 +42,16 @@ def edit_widget(request, **kwargs):
             if containsModel:
                 obj = get_widget_model_queryset(widget, widget_class_obj)
                 model_form = get_model_form_for_widget(widget_class_obj, \
-                        {"POST":request.POST, "FILES":request.FILES}, instance=obj, widget=widget)
+                                                       {"POST": request.POST, "FILES": request.FILES}, instance=obj,
+                                                       widget=widget)
                 try:
                     if model_form.is_valid():
-                        saved_obj=model_form.save()
+                        saved_obj = model_form.save()
                         data.update({"obj": saved_obj.id})
                     elif model_form.errors:
                         model_data = ajaxerror(model_form)
                         errors = dict(data.get("errors", {}), **model_data["errors"])
-                        data = {'valid': False, "errors": errors }
+                        data = {'valid': False, "errors": errors}
                 except Exception:
                     raise
         else:
@@ -60,9 +62,9 @@ def edit_widget(request, **kwargs):
             initial = {'status': widget.status}
             if widget.hasOptions:
                 initial.update(dict(("option_%s" % option.name, option.value) \
-                             for option in widget.options.all()))
+                                    for option in widget.options.all()))
             options_form = WidgetOptionsForm(widget.widget_class, \
-                            data=initial)
+                                             data=initial)
             extra_js = []
             o = get_template("widget/options.html")
             ctx.update({'options_form': options_form})
@@ -108,7 +110,7 @@ def widget_list(request):
         extra_js = []
         o = get_template("widget/options.html")
         ctx.update({'options_form': options_form,
-                    'widget_class': widget_class_obj })
+                    'widget_class': widget_class_obj})
         model_form = get_model_form_for_widget(widget_class_obj)
         if model_form:
             ctx.update({'model_form': model_form})
@@ -116,10 +118,12 @@ def widget_list(request):
 
         options = o.render(ctx)
         extra_js += options_form.extra_js
-        data = {'valid': False, 'type':'fi', 'data':options, 'extra_js': extra_js}
+        data = {'valid': False, 'type': 'fi', 'data': options, 'extra_js': extra_js}
     else:
         data = ajaxerror(widget_form)
     return HttpResponse(json_serializer.encode(data), mimetype='application/json')
+
+
 create_widget = require_POST(widget_list)
 
 
@@ -157,48 +161,47 @@ def create_widget(request, **kwargs):
         elif options_form.errors:
             data = ajaxerror(options_form)
 
-
         if widget is None and not options_form.hasOptions and containsModel:
             try:
                 "update widget if it exists"
                 widget = Widget.objects.get(id=request.POST["widget"])
             except Exception:
                 widget = Widget(widgetslot=slot,
-                    widget_class=widget_class,
-                    user=request.user, page=page)
+                                widget_class=widget_class,
+                                user=request.user, page=page)
                 widget.save()
-
 
         model_widget = None
         if widget: model_widget = widget
         model_form = get_model_form_for_widget(widget_class_obj,
-            {"POST": request.POST, "FILES": request.FILES},
-            widget=model_widget
+                                               {"POST": request.POST, "FILES": request.FILES},
+                                               widget=model_widget
         )
         if model_form:
             try:
                 if model_form.is_valid():
-                    saved_obj=model_form.save()
+                    saved_obj = model_form.save()
                     data.update({"obj": saved_obj.id})
                 elif model_form.errors:
                     model_data = ajaxerror(model_form)
                     errors = dict(data.get("errors", {}), **model_data["errors"])
-                    data = {'valid': False, "errors": errors }
+                    data = {'valid': False, "errors": errors}
             except Exception:
                 raise
     except Exception, e:
         data = {"valid": False, \
-                "errors": { "_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
+                "errors": {"_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
     if "valid" in data and data["valid"]:
         return HttpResponse(json_serializer.encode(data), mimetype='application/json')
     return HttpResponseBadRequest(json_serializer.encode(data), mimetype='application/json')
+
+
 create_widget = require_POST(create_widget)
 
 
 @login_required
 @admin_can(Widget, action="delete")
 def delete_widget(request, id):
-
     data = {'valid': False}
     try:
         obj = Widget.objects.get(id=id)
@@ -206,8 +209,9 @@ def delete_widget(request, id):
         data = {'valid': True}
     except Exception:
         pass
-    return HttpResponse(json_serializer.encode(data),\
-        mimetype='application/json')
+    return HttpResponse(json_serializer.encode(data), \
+                        mimetype='application/json')
+
 
 @login_required
 @ajax_view()
@@ -218,7 +222,7 @@ def widget_options(request, type):
         ctx = RequestContext(request)
         o = get_template("widget/options.html")
         ctx.update({'options_form': options_form,
-                    'widget_class': options_form.widget_class })
+                    'widget_class': options_form.widget_class})
 
         options = o.render(ctx)
         data = {'valid': True, 'type': 'fi', 'opts': options}
@@ -226,6 +230,7 @@ def widget_options(request, type):
         data = {"valid": False, "error": "None"}
 
     return data
+
 
 @login_required
 @admin_can(Widget)
@@ -249,7 +254,7 @@ def widget_ordering(request):
                 try:
                     Widget.objects.filter(id=get_id(widget)).update(_order=i)
                 except Exception, e:
-                    data = {'status':False, 'error':str(e)}
+                    data = {'status': False, 'error': str(e)}
     try:
         moved_widget = int(get_id(request.POST.get("moved_widget", "")))
     except ValueError, e:
@@ -263,9 +268,9 @@ def widget_ordering(request):
             widget.widgetslot = moved_parent
             widget.save()
         except Exception, e:
-            data = {'status':False, 'error':str(e)}
-    return HttpResponse(json_serializer.encode(data),\
-        mimetype='application/json')
+            data = {'status': False, 'error': str(e)}
+    return HttpResponse(json_serializer.encode(data), \
+                        mimetype='application/json')
 
 
 @login_required
@@ -280,10 +285,10 @@ def widget_status(request):
         else:
             widget.status = CONTENT_STATUS_DRAFT
         widget.save()
-        data = {"status":True, "published": widget.status}
+        data = {"status": True, "published": widget.status}
     except Exception, e:
-        data = {"status":False, "error": str(e.message)}
+        data = {"status": False, "error": str(e.message)}
 
-    return HttpResponse(json_serializer.encode(data),\
-        mimetype='application/json')
+    return HttpResponse(json_serializer.encode(data), \
+                        mimetype='application/json')
 

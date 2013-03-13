@@ -15,18 +15,18 @@ import option_fields
 class WidgetForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        print kwargs
-        user = kwargs.get("initial").get("user")
-        if user.is_superuser:
-            restrict_list = None
-        else:
-            restrict_list = kwargs.pop("restrict_list", settings.RESTRICTED_WIDGETS)
+        restrict_list = kwargs.pop("restrict_list", settings.RESTRICTED_WIDGETS)
         super(WidgetForm, self).__init__(*args, **kwargs)
-        print self.data
+        try:
+            user = self.initial["user"]
+            if user.is_superuser:
+                restrict_list = None
+        except KeyError:
+            pass
+
         self.uuid = str(uuid4())
         self.fields["page"].queryset = Page.objects.get_query_set()
         self.fields["widget_class"].choices = get_all_page_widgets(restrict_list)
-
 
     class Meta:
         model = Widget

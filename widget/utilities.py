@@ -166,7 +166,7 @@ def ajax_view():
     def _dec(view):
         def _view(request, *args, **kwargs):
             data = view(request, *args, **kwargs)
-            print data
+            # print data
             return HttpResponse(json_serializer.encode(data),\
                     mimetype='application/json')
         _view.__name__ = view.__name__

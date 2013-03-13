@@ -20,3 +20,11 @@ register_setting(
         "TestWidget"
     ],
 )
+
+register_setting(
+    name="WIDGET_PERMISSION_HANDLER",
+    label="Widget Permission Handler",
+    description=_("A class which handles permissions for widgets"),
+    editable=False,
+    default=None,
+)
