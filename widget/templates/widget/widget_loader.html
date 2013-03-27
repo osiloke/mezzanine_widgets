@@ -53,11 +53,9 @@
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
         });
-
-        var WidgetController = new WidgetAdmin();
-        WidgetController.setupWidgetForms();
-        WidgetController.setupSortableWidgets();
+        
         window.__widget_ordering_url = "{% url "widget_ordering" %}";
+        var WidgetController = new WidgetAdmin(); 
     });
 </script>
 

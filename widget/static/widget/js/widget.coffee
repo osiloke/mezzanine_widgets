@@ -14,7 +14,11 @@ class @WidgetAdmin
 
         )
     #some neccessary jq config
-    $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
+    # $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
+    @setupAdmin()
+    @setupWidgetForms()
+    @setupSortableWidgets()
+    @setupWidgetStatusHandler()
     @
 
   setupAdmin: () =>
@@ -94,6 +98,9 @@ class @WidgetAdmin
     # AJAX callback that's triggered when dragging a widget to re-order
     # Based on mezzanine
     updateOrdering = (event, ui) ->
+#      $uiItem = $(ui.item)
+#      if $uiItem.parent().is('.widget-sortable') then $uiItem.remove()
+
       next = ui.item.next()
       next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
       setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
@@ -101,7 +108,7 @@ class @WidgetAdmin
       args =
         'ordering_from': $(this).sortable('toArray').toString(),
         'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
-
+#      console.log $(this), $(ui.item)
       if args['ordering_from'] != args['ordering_to']
         # Branch changed - set the new parent ID.
         args['moved_widget'] = $(ui.item).attr('id')
@@ -114,28 +121,35 @@ class @WidgetAdmin
 
       $.post(window.__widget_ordering_url, args, (data) ->
         if not data
-          alert("Error occured: " + data + "\nOrdering wasn't updated.");
+          alert("Error occured: " + data + "\nWidget ordering wasn't updated.");
 
-      )
-    stylesheet =`$('style[name=impostor_size]')[0].sheet,
-          rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style,
-        setPadding = function(atHeight) {
-        rule.cssText = 'border-top-width: '+atHeight+'px';
-        }`
+      ) 
+    stylesheet = $('style[name=impostor_size]')[0].sheet
+    `rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style`
+    setPadding = (atHeight) ->
+        rule.cssText = 'border-top-width: '+atHeight+'px'
 
     $('.widget-sortable').sortable({
-    handle: '.ordering', opacity: '.7', stop: updateOrdering,
-    forcePlaceholderSize: true,
-    placeholder: "ui-state-highlight",
-    forcePlaceholderSize: true,
-    placeholder: 'marker',
-    revert: 150,
-    start: (ev, ui) ->
-      setPadding(ui.item.height())
-    }).sortable('option', 'connectWith', '.widget-sortable')
-    $('.widget-sortable').disableSelection()
+      handle: '.ordering',
+      opacity: '.7',
+      stop: updateOrdering,
+      forcePlaceholderSize: true,
+      dropOnEmpty: true,
+      placeholder: 'placeholder',
+      helper: 'clone',
+      revert: 150,
 
-    @
+#      start: (ev, ui) ->
+#        setPadding(ui.item.height())
+    })
+      .sortable('option', 'connectWith', '.widget-sortable')
+      .bind('sortstart', (event, ui) ->
+          setPadding(ui.item.height())
+#          $uiItem = $(ui.item)
+#          $uiItem.clone().show().insertBefore($uiItem)
+      )
+      .disableSelection()
+
   #edit form handler
   onEditForm: (link, widget_id, widget_title) ->
     widget = this
