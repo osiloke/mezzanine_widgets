@@ -9,12 +9,26 @@ Features
 * Easy and full frontend modification of widgets i.e Adding, Editing and Deleting widgets
 * Configuration options for each widget
 * Multisite support
+* Sortable Widgets
+* Mutual exclusivity from django app loader
 * Bootstrap theme integration
 
 Requirements
 ============
+
+Python
+~~~~~~
 mezzanine 1.x.x
 django-classy-tags
+
+Javascript 
+~~~~~~~~~~
+Bootstrap Tooltip
+Jquery Django Admin Form
+underscore
+jQuery UI
+
+Please use widget/widget_loader.html as a reference to add the neccessary js if you do not want to use the {% widget_loader %} tag.
 
 METHODOLOGY
 ===========
@@ -127,3 +141,4 @@ TODO
 ====
 * Better presentation of widget list in frontend.
 * More render options, like provide template for widget list wrap
+* Bootstrap theme integration

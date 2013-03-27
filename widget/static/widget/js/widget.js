@@ -31,6 +31,9 @@
       if (not_impl.length > 0) {
         not_impl.each(function(i) {});
       }
+      $(".widget-edit-link, .widget-delete-link").tooltip({
+        placement: "right"
+      });
       this.setupAdmin();
       this.setupWidgetForms();
       this.setupSortableWidgets();
@@ -60,8 +63,7 @@
     };
 
     WidgetAdmin.prototype.setupWidgetForms = function() {
-      var expose,
-        _this = this;
+      var expose, that;
       $("#widget-form").adminForm({
         preSubmit: this.preSubmit,
         resultParsed: this.resultParsed
@@ -92,13 +94,25 @@
       $("#edit-widget-form").adminForm({
         resultParsed: this.onEditData
       });
-      $('.widget-edit-link').click(function(e) {
-        var widget_id, widget_title;
-        widget_id = e.currentTarget.id.split("-")[1];
-        widget_title = e.currentTarget.parentElement.parentElement.parentElement.id;
-        _this.onEditForm(e.currentTarget, widget_id, widget_title);
-        $('#editForm').modal();
-        return e.preventDefault();
+      that = this;
+      $.each($('.widget-edit-link'), function(i) {
+        var $link, onBeforeLoad, overlay, target;
+        $link = $(this);
+        target = $(this)[0];
+        onBeforeLoad = function() {
+          var widget_id, widget_title;
+          widget_id = target.id.split("-")[1];
+          widget_title = target.parentElement.parentElement.parentElement.id;
+          return that.onEditForm(target, widget_id, widget_title);
+        };
+        overlay = {
+          onBeforeLoad: onBeforeLoad,
+          closeOnEsc: true,
+          expose: expose,
+          closeOnClick: true,
+          close: ':button'
+        };
+        return $link.overlay(overlay);
       });
       return this;
     };

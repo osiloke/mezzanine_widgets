@@ -14,7 +14,7 @@ class @WidgetAdmin
 
         )
     #some neccessary jq config
-    # $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
+    $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
     @setupAdmin()
     @setupWidgetForms()
     @setupSortableWidgets()
@@ -56,13 +56,17 @@ class @WidgetAdmin
     #Setup Edit Form for ajax post submission
     $("#edit-widget-form").adminForm({resultParsed: @onEditData})
 
+    that = this
     #Setup Edit Form Triggers
-    $('.widget-edit-link').click((e) =>
-        widget_id = e.currentTarget.id.split("-")[1]
-        widget_title = e.currentTarget.parentElement.parentElement.parentElement.id
-        @onEditForm(e.currentTarget, widget_id, widget_title)
-        $('#editForm').modal()
-        e.preventDefault();
+    $.each($('.widget-edit-link'), (i) ->
+        $link = $(this)
+        target = $(this)[0]
+        onBeforeLoad = () ->
+          widget_id = target.id.split("-")[1]
+          widget_title = target.parentElement.parentElement.parentElement.id
+          that.onEditForm(target, widget_id, widget_title)
+        overlay = {onBeforeLoad: onBeforeLoad, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
+        $link.overlay(overlay) 
     )
     @
 
