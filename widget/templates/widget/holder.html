@@ -27,7 +27,7 @@
                                 {% endif %}
                             {% endif %}
                             {% if perms.widget.can_delete %}
-                                <a id="dw-{{ w.widget.id }}-delete" class="widget-delete-link"  href="{% url delete_widget w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
+                                <a id="dw-{{ w.widget.id }}-delete" class="widget-delete-link"  href="{% url "delete_widget" w.widget.id %}?next={{request.path}}"><i class="icon-remove"></i></a>
                             {% endif %}
                             {% if perms.widget.can_change %}
                             <span class="ordering" style="float:right;">

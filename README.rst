@@ -1,6 +1,6 @@
 OVERVIEW
 ========= 
-:Author: Osi Emoekpere (http://osiloke.blogspot.com, http://twitter.com/osilocks)
+:Author: Osi Emoekpere (http://osiloke.com, http://twitter.com/osilocks)
 
 :info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget or slideshow to mezzanine pages.
 
@@ -13,7 +13,7 @@ Features
 
 Requirements
 ============
-mezzanine 1.x.x (I'm not sure if 1.0 is backwards compatible)
+mezzanine 1.x.x
 django-classy-tags
 
 METHODOLOGY
@@ -117,10 +117,13 @@ Change directory to the example app and run::
 
 python manage.py createdb --noinput
 
-The gallery page has a couple of widgets, so take a look at that first.
+This will create a demo mezzanine applciation, To test out mezzanine widgets go to any mezzanine page (about, gallery etc) and click the `add widget` button to add a new widget. 
+
+Run tests from the example folder with::
+
+python manage.py test widget --settings=test_settings
 
 TODO
 ====
 * Better presentation of widget list in frontend.
-* Sorting and swapping widgets
-* More render options
+* More render options, like provide template for widget list wrap

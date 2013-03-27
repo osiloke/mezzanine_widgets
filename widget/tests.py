@@ -72,7 +72,7 @@ class Tests(TestCase):
         This will create a new test widget with the assigned options
         """
         form = WidgetOptionsForm("TestWidget",
-            data={"option_First":"Option 1", "option_Second":"Option 2", "option_Third":"Option 3"}
+            data={"option_First": "Option 1", "option_Second": "Option 2", "option_Third": "Option 3"}
         )
         self.assertEqual(form.is_valid(), True)
 

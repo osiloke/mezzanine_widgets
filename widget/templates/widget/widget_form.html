@@ -5,7 +5,7 @@
 <form style="display:none;" 
     class="popup-form frontend-admin-form form-vertical" 
     method="post"
-    action="{% url widget_list %}" id="widget-form"
+    action="{% url "widget_list" %}" id="widget-form"
     {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     <fieldset id="widget-list" style="border:none;">
