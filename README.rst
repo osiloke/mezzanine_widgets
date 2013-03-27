@@ -17,12 +17,12 @@ Requirements
 ============
 
 Python
-~~~~~~
+------
 mezzanine 1.x.x
 django-classy-tags
 
 Javascript 
-~~~~~~~~~~
+----------
 Bootstrap Tooltip
 Jquery Django Admin Form
 underscore
