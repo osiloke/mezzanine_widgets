@@ -6,20 +6,22 @@
 
     WidgetAdmin.options_forms = {};
 
+    WidgetAdmin.options = {};
+
     WidgetAdmin.prototype.widget_status_icon_toggle = {
       2: {
-        "ico": "icon-thumbs-up",
+        "ico": "icon-chevron-up",
         "message": "Published",
         "prefix": "Unpublish"
       },
       1: {
-        "ico": "icon-thumbs-down",
+        "ico": "icon-chevron-down",
         "messsage": "Unpublished",
         "prefix": "Publish"
       }
     };
 
-    function WidgetAdmin() {
+    function WidgetAdmin(options) {
       this.setupWidgetStatusHandler = __bind(this.setupWidgetStatusHandler, this);
 
       this.setupWidgetForms = __bind(this.setupWidgetForms, this);
@@ -27,6 +29,7 @@
       this.setupAdmin = __bind(this.setupAdmin, this);
 
       var not_impl;
+      this.options = options;
       not_impl = $('a.not-implemented');
       if (not_impl.length > 0) {
         not_impl.each(function(i) {});
@@ -129,7 +132,7 @@
           return status_icons[widget_status]["prefix"];
         }
       });
-      return $(".widget-publish-link").click(function(e) {
+      return $(".widget-publish-link").on("click", (function(e) {
         var callback, id_split, widget_id, widget_title;
         id_split = e.currentTarget.id.split("-");
         widget_id = id_split[1];
@@ -146,11 +149,11 @@
             return e.currentTarget.id = new_id;
           }
         };
-        _this.remoteCall(e.currentTarget, window.__widget_status_url, {
+        _this.remoteCall(e.currentTarget, _this.options.status_url, {
           "id": widget_id
         }, callback);
         return e.preventDefault();
-      });
+      }));
     };
 
     WidgetAdmin.prototype.setupSortableWidgets = function() {

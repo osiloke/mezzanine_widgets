@@ -21,9 +21,9 @@
                             {% if perms.widget.can_change %}
                                 <a id="ew-{{ w.widget.id }}-edit" class="widget-edit-link" href="#"  rel="#edit-widget-form"  data-original-title="Edit {{ w.meta.name }}"><i class="icon-edit"></i></a>
                                 {% if w.widget.status == 2 %}
-                                    <a id="ew-{{ w.widget.id }}-edit" class="widget-edit-link" href="#"   data-original-title="Unpublish this {{ w.meta.name }}"><i class="icon-thumbs-down"></i></a>
+                                    <a id="ew-{{ w.widget.id }}-edit" class="widget-publish-link" href="#"   data-original-title="Unpublish this {{ w.meta.name }}"><i class="icon-chevron-down"></i></a>
                                 {% else %}
-                                    <a id="ew-{{ w.widget.id }}-edit" class="widget-edit-link" href="#" data-original-title="Publish this {{ w.meta.name }}" ><i class="icon-thumbs-up"></i></a>
+                                    <a id="ew-{{ w.widget.id }}-edit" class="widget-publish-link" href="#" data-original-title="Publish this {{ w.meta.name }}" ><i class="icon-chevron-up"></i></a>
                                 {% endif %}
                             {% endif %}
                             {% if perms.widget.can_delete %}

@@ -1,11 +1,13 @@
 class @WidgetAdmin
   @options_forms: {}
+  @options: {}
   widget_status_icon_toggle: {
-    2: {"ico":"icon-thumbs-up", "message": "Published", "prefix": "Unpublish"},
-    1: {"ico":"icon-thumbs-down", "messsage": "Unpublished", "prefix":"Publish"}
+    2: {"ico":"icon-chevron-up", "message": "Published", "prefix": "Unpublish"},
+    1: {"ico":"icon-chevron-down", "messsage": "Unpublished", "prefix":"Publish"}
   }
 
-  constructor: ->
+  constructor: (options) ->
+    @options = options
 #    console.log "Widget Admin Controller"
     #Catch all actions which are not implemented yet
     not_impl = $('a.not-implemented')
@@ -75,10 +77,10 @@ class @WidgetAdmin
     $(".widget-publish-link").tooltip {
       placement:"right",
       title: () ->
-        widget_status = @.id.split("-")[-1..][0]
+        widget_status = @id.split("-")[-1..][0]
         return status_icons[widget_status]["prefix"]
     }
-    $(".widget-publish-link").click((e) =>
+    $(".widget-publish-link").on("click", ((e) =>
       id_split = e.currentTarget.id.split("-")
       widget_id = id_split[1]
       widget_title = $(e.currentTarget).attr('data-original-title')
@@ -93,10 +95,9 @@ class @WidgetAdmin
           new_id = old_id[...-1] + data.published
           e.currentTarget.id = new_id
 
-
-      @remoteCall(e.currentTarget, window.__widget_status_url, {"id":widget_id}, callback)
+      @remoteCall(e.currentTarget, @options.status_url, {"id":widget_id}, callback)
       e.preventDefault()
-    )
+    ))
 
   setupSortableWidgets: ->
     # AJAX callback that's triggered when dragging a widget to re-order
