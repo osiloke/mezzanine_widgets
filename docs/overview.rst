@@ -1,36 +1,21 @@
-OVERVIEW
-========= 
-:Author: Osi Emoekpere (http://osiloke.com, http://twitter.com/osilocks)
-
-:info: This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget or slideshow to mezzanine pages.
+****************************************************
+Overview
+****************************************************
+This app extends mezzanine applications by provides an interface for adding dynamic custom content like a twitter mentions widget or slideshow to mezzanine pages.
 
 Features
-========
+--------
 * Easy and full frontend modification of widgets i.e Adding, Editing and Deleting widgets
 * Configuration options for each widget
 * Multisite support
-* Sortable Widgets
-* Mutual exclusivity from django app loader
 * Bootstrap theme integration
 
 Requirements
-============
-
-Python
-~~~~~~
-mezzanine 1.x.x
+------------
+mezzanine 1.x
 django-classy-tags
 
-Javascript 
-~~~~~~~~~~
-Bootstrap Tooltip
-Jquery Django Admin Form
-underscore
-jQuery UI
-
-Please use widget/widget_loader.html as a reference to add the neccessary js if you do not want to use the {% widget_loader %} tag.
-
-METHODOLOGY
+Methodology
 ===========
 Widgets are placed in the specified slot. Slots are just placeholders inside django templates where widgets are rendered.
 They are not stored in the database. As a result, a template designer does not worry about syncing the database
@@ -50,7 +35,7 @@ Add the widget app to your installed apps after all mezzanine apps in your ``set
        ...
    )
 
-USAGE
+Usage
 =====
 
 Page Widgets
@@ -131,14 +116,10 @@ Change directory to the example app and run::
 
 python manage.py createdb --noinput
 
-This will create a demo mezzanine applciation, To test out mezzanine widgets go to any mezzanine page (about, gallery etc) and click the `add widget` button to add a new widget. 
-
-Run tests from the example folder with::
-
-python manage.py test widget --settings=test_settings
+The gallery page has a couple of widgets, so take a look at that first.
 
 TODO
 ====
 * Better presentation of widget list in frontend.
-* More render options, like provide template for widget list wrap
-* Bootstrap theme integration
+* Sorting and swapping widgets
+* More render options

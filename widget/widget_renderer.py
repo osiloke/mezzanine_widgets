@@ -1,5 +1,6 @@
-
-from widget.models import  Widget, WidgetModel
+import os
+from widget.models import  Widget
+from widget.utilities import get_widget_model_queryset
 from widget.widget_pool import get_widget
 
 from django.template.loader import render_to_string, get_template_from_string
@@ -12,9 +13,8 @@ def render_template(context, template, raw=False):
     """
     rendered = ''
     if raw:
-        template = get_template_from_string(template)
-        template.name = "custom_template"
-        rendered = template.render(context)
+        template_object = get_template_from_string(template, name="custom_template_" + os.urandom(32))
+        rendered = template_object.render(context)
     else:
         if isinstance(template, str):
             rendered = render_to_string(template, context)
@@ -22,6 +22,47 @@ def render_template(context, template, raw=False):
             rendered = template.render(context)
     return rendered
 
+def make_or_get_widget_for_slot(slot, widget_context, widget_class, **kwargs):
+    """
+    Create or get a widget for a WidgetSlot
+    Useful when creating templates and you want to add, for example, a default slidshow widget
+
+    It only creates a new widget with the
+    """
+    page = widget_context.get("page", None)
+    user = widget_context["request"].user
+
+    widget_obj, created = Widget.objects.get_or_create(widgetslot=slot,
+        page=page, user=user, widget_class=widget_class).defaults(**kwargs)
+
+    return render_widget(widget_obj, widget_context)
+
+def render_widget(widget, widget_context):
+    """
+    Render a single widgtet
+    """
+    widget_class = get_widget(widget.widget_class)
+    widget_context.update({'widget': widget})
+
+    if widget_class is not None:
+        widget_options = None
+        widget_class = widget_class()
+        if hasattr(widget_class, "options"):
+            try:
+                widget_options = dict(((o["name"], o["value"])\
+                    for o in widget.options.values("name", "value")))
+                widget_context.update({"opts": widget_options})
+            except Exception, e:
+                raise e
+        queryset = get_widget_model_queryset(widget, widget_class)
+        rendered_widget = render_template(widget_class\
+        ._render(widget_context, widget.slot, queryset, widget_options),\
+            widget_class.template, raw=widget_class.raw)
+
+
+        return {'widget': widget,\
+                                 'meta': widget_class.Meta,\
+                                 'content': rendered_widget}
 
 def render_widgets_for_slot(slot, widget_context):
     """
@@ -33,7 +74,7 @@ def render_widgets_for_slot(slot, widget_context):
     #regular widgets
     slot_widgets = Widget.objects.published(user)\
                     .filter(widgetslot=slot,\
-                        page=page, page_less=False)
+                        page=page, page_less=False).order_by('_order')
     #Some widgets are not bound to one page, logo widget
     page_less_widgets = Widget.objects.published(user)\
                 .filter(widgetslot=slot, page_less=True)
@@ -56,7 +97,7 @@ def render_widgets_for_slot(slot, widget_context):
             queryset = get_widget_model_queryset(widget, widget_class)
             rendered_widget = render_template(widget_class\
                     ._render(widget_context, slot, queryset, widget_options),\
-                              widget_class.template, widget_class.raw)
+                              widget_class.template, raw=widget_class.raw)
 
 
             rendered_widgets.append({'widget': widget, \
@@ -65,16 +106,4 @@ def render_widgets_for_slot(slot, widget_context):
 
     return rendered_widgets
 
-def get_widget_model_queryset(widget, widget_class):
-    try:
-        if hasattr(widget_class, 'model'):
-            'Widget class is associated with a model'
-            model = widget_class.model
-            if model and WidgetModel in (model.__bases__):
-                'The widget model has to subclass the WidgetModel class'
-                model_queryset = model.objects.filter(widget=widget)
-                if len(model_queryset):
-                    return model_queryset
-    except Exception:
-        raise
-    return None
+

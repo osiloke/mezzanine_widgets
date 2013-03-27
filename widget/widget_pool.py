@@ -58,11 +58,26 @@ def get_widget(name):
     except Exception:
         raise WidgetNotFound
 
+def get_widget_model(name):
+    try:
+        w = get_widget(name)
+        return w.model
+    except WidgetNotFound:
+        raise
+    except Exception:
+        return None
 
-def get_all_page_widgets():
+def get_all_page_widgets(restrict_list=None):
     autodiscover()
-    listes = ((w, page_widgets[w].Meta.name) for w in page_widgets)
-    return listes
+    widgs = ()
+    if restrict_list:
+        restrict = lambda w: w in restrict_list or False
+    else:
+        restrict = lambda w: False
+
+    for w in page_widgets:
+        if not restrict(w):
+            yield (w, page_widgets[w].Meta.name)
 
 def get_widget_array():
     return [w for w in page_widgets]

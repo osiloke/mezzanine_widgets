@@ -1,8 +1,13 @@
 class @WidgetAdmin
   @options_forms: {}
+  @options: {}
+  widget_status_icon_toggle: {
+    2: {"ico":"icon-chevron-up", "message": "Published", "prefix": "Unpublish"},
+    1: {"ico":"icon-chevron-down", "messsage": "Unpublished", "prefix":"Publish"}
+  }
 
-
-  constructor: ->
+  constructor: (options) ->
+    @options = options
 #    console.log "Widget Admin Controller"
     #Catch all actions which are not implemented yet
     not_impl = $('a.not-implemented')
@@ -10,6 +15,12 @@ class @WidgetAdmin
         not_impl.each((i) ->
 
         )
+    #some neccessary jq config
+    $(".widget-edit-link, .widget-delete-link").tooltip {placement:"right"}
+    @setupAdmin()
+    @setupWidgetForms()
+    @setupSortableWidgets()
+    @setupWidgetStatusHandler()
     @
 
   setupAdmin: () =>
@@ -26,7 +37,8 @@ class @WidgetAdmin
             )
         else
           $("#options-form-holder").html(@options_forms[type])
-    @setupSortableWidgets()
+
+
     @
 
   setupWidgetForms: () =>
@@ -42,36 +54,140 @@ class @WidgetAdmin
         overlay = {onBeforeLoad: onBeforeLoad, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
         link.overlay(overlay)
     )
+
+    #Setup Edit Form for ajax post submission
     $("#edit-widget-form").adminForm({resultParsed: @onEditData})
-    $('.widget-edit-link').click((e) =>
-        widget_id = e.currentTarget.id.split("-")[1]
-        widget_title = e.currentTarget.value
-        @onEditForm(e.currentTarget, widget_id, widget_title)
+
+    that = this
+    #Setup Edit Form Triggers
+    $.each($('.widget-edit-link'), (i) ->
+        $link = $(this)
+        target = $(this)[0]
+        onBeforeLoad = () ->
+          widget_id = target.id.split("-")[1]
+          widget_title = target.parentElement.parentElement.parentElement.id
+          that.onEditForm(target, widget_id, widget_title)
+        overlay = {onBeforeLoad: onBeforeLoad, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
+        $link.overlay(overlay) 
     )
     @
 
+  setupWidgetStatusHandler: =>
+    status_icons = @widget_status_icon_toggle
+    $(".widget-publish-link").tooltip {
+      placement:"right",
+      title: () ->
+        widget_status = @id.split("-")[-1..][0]
+        return status_icons[widget_status]["prefix"]
+    }
+    $(".widget-publish-link").on("click", ((e) =>
+      id_split = e.currentTarget.id.split("-")
+      widget_id = id_split[1]
+      widget_title = $(e.currentTarget).attr('data-original-title')
+      callback = (data) =>
+        if data.status == true
+#          icon = $("#" + e.currentTarget.id + " i")
+          icon = e.currentTarget.getElementsByTagName("i")[0]
+          toggle = @widget_status_icon_toggle[data.published]
+          new_class = toggle["ico"]
+          icon.className = new_class
+          old_id = e.currentTarget.id
+          new_id = old_id[...-1] + data.published
+          e.currentTarget.id = new_id
+
+      @remoteCall(e.currentTarget, @options.status_url, {"id":widget_id}, callback)
+      e.preventDefault()
+    ))
+
+  setupSortableWidgets: ->
+    # AJAX callback that's triggered when dragging a widget to re-order
+    # Based on mezzanine
+    updateOrdering = (event, ui) ->
+#      $uiItem = $(ui.item)
+#      if $uiItem.parent().is('.widget-sortable') then $uiItem.remove()
+
+      next = ui.item.next()
+      next.css({'-moz-transition':'none', '-webkit-transition':'none', 'transition':'none'})
+      setTimeout(next.css.bind(next, {'-moz-transition':'border-top-width 0.1s ease-in', '-webkit-transition':'border-top-width 0.1s ease-in', 'transition':'border-top-width 0.1s ease-in'}))
+
+      args =
+        'ordering_from': $(this).sortable('toArray').toString(),
+        'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
+#      console.log $(this), $(ui.item)
+      if args['ordering_from'] != args['ordering_to']
+        # Branch changed - set the new parent ID.
+        args['moved_widget'] = $(ui.item).attr('id')
+        args['moved_parent'] = $(ui.item).parent().parent().attr('id')
+        if args['moved_parent'] == 'widget-sortable'
+          delete args['moved_parent']
+      else
+        delete args['ordering_to']
+        delete args['widget_class_to']
+
+      $.post(window.__widget_ordering_url, args, (data) ->
+        if not data
+          alert("Error occured: " + data + "\nWidget ordering wasn't updated.");
+
+      ) 
+    stylesheet = $('style[name=impostor_size]')[0].sheet
+    `rule = stylesheet.rules ? stylesheet.rules[0].style : stylesheet.cssRules[0].style`
+    setPadding = (atHeight) ->
+        rule.cssText = 'border-top-width: '+atHeight+'px'
+
+    $('.widget-sortable').sortable({
+      handle: '.ordering',
+      opacity: '.7',
+      stop: updateOrdering,
+      forcePlaceholderSize: true,
+      dropOnEmpty: true,
+      placeholder: 'placeholder',
+      helper: 'clone',
+      revert: 150,
+
+#      start: (ev, ui) ->
+#        setPadding(ui.item.height())
+    })
+      .sortable('option', 'connectWith', '.widget-sortable')
+      .bind('sortstart', (event, ui) ->
+          setPadding(ui.item.height())
+#          $uiItem = $(ui.item)
+#          $uiItem.clone().show().insertBefore($uiItem)
+      )
+      .disableSelection()
+
+  #edit form handler
   onEditForm: (link, widget_id, widget_title) ->
     widget = this
-    editUrl = "/widget/edit/" + widget_id + "/"
+    url = "/widget/edit/" + widget_id + "/"
     options = {
-      url: editUrl
+      url: url
       success: (data) ->
-        expose = {color: "#333", loadSpeed: 200, opacity: 0.9}
-        overlay = {load: true, closeOnEsc: true, expose: expose, closeOnClick: true, close: ':button'}
         widget.onEditData(null, data, widget_title)
         $("#edit-widget-form")
-          # .adminForm({data: {id: widget_id}})
           .get(0)
-          .setAttribute("action", editUrl)
-
-        $(link).overlay(overlay)
-        #The load option doesnt seem to be working
-        #load overlay after binding to the link
-        $(link).overlay(overlay).load()
+          .setAttribute("action", url)
     }
     $.ajax(options)
     @
 
+  remoteCall: (e, url, params, callback) ->
+    widget = this
+    options = {
+      type: "POST"
+      url: url
+      data: params
+      success: (data) ->
+        callback(data)
+
+    }
+    if callback
+      options["success"] = (data) ->
+        callback(data)
+
+    $.ajax(options)
+    @
+
+  #edit form result handler
   onEditData: (e, params, widget_title) ->
     if params.status == true
       location.reload()
@@ -79,10 +195,17 @@ class @WidgetAdmin
       optHolder = $("#edit-widget-form")
                       .find('fieldset#widget-options')
                       .find(".options")
+
+      #set modal title
+      $("#editForm h3#title").text("Edit " + widget_title)
       switch params.type
          when "ef"
            optHolder.empty()
-           optHolder.prepend params.data 
+           optHolder.prepend params.data
+
+           if params.extra_js
+             for js in params.extra_js
+              eval(js)
          else
             @
     @
@@ -115,7 +238,7 @@ class @WidgetAdmin
            listSet.show()
            optHolder.empty()
            optSet.hide()
-           optSet.find("legend").val("Configure this Widget")
+           $("#editForm h3#title").text("Configure this Widget")
            form.get(0).setAttribute("action", action)
            back.hide()
            doer.val("Choose")
@@ -139,47 +262,20 @@ class @WidgetAdmin
              )
            when "nf"
            else
-             optSet.find("legend").val("You are done! Click save")
+             $("#editForm h3#title").text("You are done! Click save")
              @
 
 
       $('#editable-loading').hide()
       form.show()
 
+    #The following functions are used to execute special js init for some widget option types
+
+    wysihtml: (id) ->
+      $("#" + id).wysihtml5({"font-styles": true, "emphasis": true, "lists": true, "html": true})
+
+    gloweditor: (id) ->
+      editor = new glow.widgets.Editor("#" + id, {theme: "dark"})
+
     doFormSave: (event) ->
       console.log "Form Clicked"
-
-
-    setupSortableWidgets: ->
-      # AJAX callback that's triggered when dragging a page to re-order
-      # it has ended.
-      # Based on mezzanine
-      updateOrdering: (event, ui) ->
-        args = 
-            'ordering_from': $(this).sortable('toArray').toString(),
-            'ordering_to': $(ui.item).parent().sortable('toArray').toString(),
-        
-        if args['ordering_from'] != args['ordering_to']
-            # Branch changed - set the new parent ID.
-            args['moved_widget'] = $(ui.item).attr('id')
-            args['moved_parent'] = $(ui.item).parent().parent().attr('id')
-            if args['moved_parent'] == 'tree'
-                delete args['moved_parent']
-        else
-            delete args['ordering_to']
-        
-        $.post(window.__page_ordering_url, args, (data) ->
-            if data != "ok"
-                alert("Error occured: " + data + "\nOrdering wasn't updated.");
-            
-        )
-      $('#widget-sortable').sortable({
-        handle: '.ordering', opacity: '.7', stop: updateOrdering,
-        forcePlaceholderSize: true, placeholder: 'placeholder',
-        revert: 150, toleranceElement: ' div'
-      }).sortable('option', 'connectWith', '#tree ul')
-      $('#widget-sortable').disableSelection()
-    
-      @
-
-

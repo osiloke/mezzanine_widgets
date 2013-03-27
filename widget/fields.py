@@ -26,13 +26,7 @@ class PageWidgetClass(models.CharField):
         super(PageWidgetClass, self).__init__(*args, **kwargs)
 
     def formfield(self, form_class=forms.CharField, **kwargs):
-        # This is a fairly standard way to set up some defaults
-#        while letting the caller override them.
         defaults = {'form_class': PageWidgetClassField}
-#        if self.choices:
-#            defaults = {'choices': self.choices}
-#        else:
-#            defaults = {'form_class': PageWidgetClassField}
         defaults.update(kwargs)
         return super(PageWidgetClass, self).formfield(**defaults)
 

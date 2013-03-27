@@ -1,6 +1,10 @@
 from copy import copy
-from django.http import HttpResponse
- 
+from exceptions import Exception
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound
+from django.template import Template
+from widget.forms import ModelFormForWidget
+from widget.models import WidgetModel
+
 
 __author__ = 'osilocks'
 
@@ -51,6 +55,7 @@ def can(action, obj, request ):
         return getattr(obj, "is_%sable"% action)(request)
     else:
         p = '%s.%s_%s' % (app_label, action, model_name)
+#        print "Check that %s has perm %s -> %s" % (request.user, p, request.user.has_perm(p))
         return request.user.is_active and request.user.has_perm(p)
     return False
 
@@ -161,6 +166,7 @@ def ajax_view():
     def _dec(view):
         def _view(request, *args, **kwargs):
             data = view(request, *args, **kwargs)
+            # print data
             return HttpResponse(json_serializer.encode(data),\
                     mimetype='application/json')
         _view.__name__ = view.__name__
@@ -170,7 +176,7 @@ def ajax_view():
         return wraps(view)(_view)
     return _dec
 
-def admin_can(model, action="add", fail404=False):
+def admin_can(model, action="add", fail404=False, ajax=False):
     def _dec(view):
         def _view(request, *args, **kwargs):
             redirect_field_name = "next"
@@ -183,11 +189,13 @@ def admin_can(model, action="add", fail404=False):
             if not can(action, model, request):
                 if fail404:
                     raise Http404
-                return HttpResponseRedirect(url)
+                return HttpResponseForbidden("You are not authorized to perform this action")
             else:
                 response = view(request, *args, **kwargs)
                 if not type(response) is HttpResponse:
-                    return HttpResponseRedirect(url)
+                    if response is None:
+                        return HttpResponseBadRequest("No data was returned")
+                    return HttpResponse(response)
                 else:
                     return response
 
@@ -221,3 +229,55 @@ def ajaxerror(form):
         'errors': final_errors,
     })
     return data
+
+
+def get_model_form_for_widget(widget_class_obj, data={}, widget=None, instance=None):
+    if hasattr(widget_class_obj, "model") and hasattr(widget_class_obj, "single"):
+        if widget:
+            fields = widget_class_obj.editableFields + ",widget"
+        else:
+            fields = widget_class_obj.editableFields
+
+        data_data = data.get("POST",None)
+        if data_data:
+            data_data = dict((key,value) for key, value in data_data.iteritems())
+            if widget:
+                data_data.update({"widget":widget.id})
+
+        model_form = ModelFormForWidget(widget_class_obj.model, fields=tuple(fields.split(',')), widget=widget) \
+                            (data_data, files=data.get("FILES", None), instance=instance)
+
+        return model_form
+    return None
+
+
+def get_widget_list_for_widget(widget):
+    try:
+        all_classes = get_all_widget_widgets()
+        list = Template('widget/list.html')
+        c = {'widgets': all_classes, 'widget_id': widget.id}
+
+        return c
+    except Exception:
+        return None
+
+
+def hasModel(widget_class_obj):
+    return hasattr(widget_class_obj, "model") and hasattr(widget_class_obj, "single")
+
+
+def get_widget_model_queryset(widget, widget_class):
+    try:
+        if hasattr(widget_class, 'model'):
+            'Widget class is associated with a model'
+            model = widget_class.model
+            if model and WidgetModel in (model.__bases__):
+                'The widget model has to subclass the WidgetModel class'
+                model_queryset = model.objects.filter(widget=widget)
+                if len(model_queryset):
+                    if hasattr(widget_class, 'single'):
+                        return model_queryset[0]
+                    return model_queryset
+    except Exception:
+        raise
+    return None

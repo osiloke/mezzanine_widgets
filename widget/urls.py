@@ -9,4 +9,5 @@ urlpatterns = patterns('widget.views',
     url(r'^delete/(?P<id>[\w]+)/$', "delete_widget", name="delete_widget"),
     url(r'^options/(?P<type>[\w]+)/$', "widget_options", name="widget_options"),
     url(r'^order/$', "widget_ordering", name="widget_ordering"),
+    url(r'^status/$', "widget_status", name="widget_status"),
 )
