@@ -71,16 +71,9 @@ def render_widgets_for_slot(slot, widget_context):
 
     page = widget_context.get("page", None)
     user = widget_context["request"].user
-    #regular widgets
-    slot_widgets = Widget.objects.published(user)\
-                    .filter(widgetslot=slot,\
-                        page=page, page_less=False).order_by('_order')
-    #Some widgets are not bound to one page, logo widget
-    page_less_widgets = Widget.objects.published(user)\
-                .filter(widgetslot=slot, page_less=True)
     rendered_widgets = []
     "Render regular paged widgets and page less widgets (universal widgets)"
-    widgets = slot_widgets | page_less_widgets
+    widgets = Widget.objects.published_for_page_or_pageless(page, slot, user)
     for widget in widgets:
         widget_class = get_widget(widget.widget_class)
         widget_context.update({'widget': widget})

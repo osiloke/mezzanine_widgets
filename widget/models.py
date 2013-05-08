@@ -89,8 +89,21 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
             Q(publish_date__lte=now()) | Q(publish_date__isnull=True),
             Q(expiry_date__gte=now()) | Q(expiry_date__isnull=True),
             Q(status=CONTENT_STATUS_PUBLISHED))
+
     def widget_models(self):
         return WidgetModel.objects.filter(widget=self)
+
+    def published_for_page_or_pageless(self, page, slot=None, for_user=None):
+        """
+        For non-staff/permissionless users, return items with that are published and
+        belong to a certain page or page less
+        """
+        if slot:
+            orslot = Q(widgetslot=slot, page_less=True)
+        else:
+            orslot = Q(page_less=True)
+
+        return self.published(for_user).filter(Q(page=page, page_less=False) | orslot)
 
 
 class Widget(Orderable, Ownable, SiteRelated):
