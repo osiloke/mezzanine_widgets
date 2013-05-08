@@ -69,7 +69,7 @@ CLASSIFIERS = [
 setup(
     name='Mezzanine Widgets',
     author='Osiloke Emoekpere',
-    version='1.5',
+    version='1.5.1',
     url='http://osiloke.blogspot.com',
     license='BSD',
     description="Makes it super easy to add extra content to mezzanine pages and also add extended functionality. Check out the example app.",
