@@ -17,6 +17,7 @@ from widget.fields import PageWidgetClass
 from django.db.models import Q
 from mezzanine.utils.timezone import now
 
+
 class WidgetOption(object):
     """
     Definition of a widget option
@@ -79,11 +80,14 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
         For non-staff/permissionless users, return items with a published status and
         whose publish and expiry dates fall before and after the
         current date when specified.
+        :param for_user:
         """
         from mezzanine.core.models import CONTENT_STATUS_PUBLISHED
+        from widget.utilities import widget_extra_permission
 
+        #This allows a callback for extra user validation, eg. check if a user passes a test (has a subscription)
         if for_user is not None and bool(for_user.is_staff
-                or for_user.has_perm("widget.change_widget")):
+            or bool(for_user.has_perm("widget.change_widget") and widget_extra_permission(for_user))):
             return self.all()
         return self.filter(
             Q(publish_date__lte=now()) | Q(publish_date__isnull=True),
@@ -98,17 +102,18 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
         For non-staff/permissionless users, return items with that are published and
         belong to a certain page or page less
         """
-        if slot:
-            orslot = Q(widgetslot=slot, page_less=True)
-        else:
-            orslot = Q(page_less=True)
 
-        return self.published(for_user).filter(Q(page=page, page_less=False) | orslot)
+        if slot:
+            return self.published(for_user).filter(widgetslot=slot).filter(
+                Q(page=page, page_less=False) | Q(page_less=True))
+        else:
+            return self.published(for_user).filter(
+                Q(page=page, page_less=False) | Q(page_less=True))
 
 
 class Widget(Orderable, Ownable, SiteRelated):
-    display_title = models.CharField(default=None, verbose_name="Title", max_length=255, \
-        null=False)
+    display_title = models.CharField(
+        default=None, verbose_name="Title", max_length=255, null=False)
     widget_class = PageWidgetClass(default="", verbose_name="Widget Type")
     active = models.BooleanField(default=True)
     widget_file_title = models.CharField(max_length=255, editable=False)

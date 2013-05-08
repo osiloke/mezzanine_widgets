@@ -1,20 +1,21 @@
 from copy import copy
 from exceptions import Exception
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound
+import os
+import errno
+
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.template import Template
-from widget.forms import ModelFormForWidget
-from widget.models import WidgetModel
-
-
-__author__ = 'osilocks'
-
-from django.db.models.related import RelatedObject
-from django.http import HttpResponseRedirect, Http404
+from mezzanine.utils.importing import import_dotted_path
+from django.utils.translation import ugettext_lazy as _
+from django.http import Http404
 from django.utils.functional import Promise
 from django.utils.encoding import force_unicode
 from django.db.models import get_model
-from django.core.exceptions import ObjectDoesNotExist
-import os, errno
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
+
+from widget.forms import ModelFormForWidget
+from widget.models import WidgetModel
+
 
 try:
     from simplejson import JSONEncoder
@@ -281,3 +282,15 @@ def get_widget_model_queryset(widget, widget_class):
     except Exception:
         raise
     return None
+
+def widget_extra_permission(user):
+    from mezzanine.conf import settings
+    try:
+        perm = import_dotted_path(settings.WIDGET_PERMISSION)
+        return perm(user)
+    except AttributeError:
+        return False
+    except ImportError:
+        raise ImproperlyConfigured(_("Could not import the value of "
+                                     "settings.WIDGET_PERMISSION: %s"
+                                     % settings.WIDGET_PERMISSION))
