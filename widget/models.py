@@ -178,8 +178,12 @@ class Widget(Orderable, Ownable, SiteRelated):
             return False
 
     def admin_link(self):
-        return "<a href='%s'>%s</a>" % (self.get_absolute_url(),
+        if not self.page_less:
+            return "<a href='%s'>%s</a>" % (self.page.get_absolute_url(),
                                         ugettext("View on site"))
+        else:
+            return ""
+
     admin_link.allow_tags = True
     admin_link.short_description = ""
 
