@@ -15,8 +15,8 @@ from mezzanine.pages.models import Page
 from widget.fields import PageWidgetClass
 
 from django.db.models import Q
-from mezzanine.utils.timezone import now
-
+#from mezzanine.utils.timezone import now
+from django.utils.timezone import now
 
 class WidgetOption(object):
     """
