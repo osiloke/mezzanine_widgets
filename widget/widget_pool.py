@@ -24,6 +24,7 @@ class WidgetNotFound(Exception):
     The requested widget was not found
     """
 
+
 class WidgetHasNoOptions(Exception):
     """
     The widget has not options
@@ -51,12 +52,14 @@ def register_widget(widget_class):
         raise WidgetAlreadyRegistered(
             _('The widget %s has already been registered.') % widget_class)
     page_widgets[name] = widget_class
-    
+
+
 def get_widget(name):
     try:
         return page_widgets[name.lower()]
     except Exception:
         raise WidgetNotFound
+
 
 def get_widget_model(name):
     try:
@@ -66,6 +69,7 @@ def get_widget_model(name):
         raise
     except Exception:
         return None
+
 
 def get_all_page_widgets(restrict_list=None):
     autodiscover()
@@ -79,15 +83,17 @@ def get_all_page_widgets(restrict_list=None):
         if not restrict(w):
             yield (w, page_widgets[w].Meta.name)
 
+
 def get_widget_array():
     return [w for w in page_widgets]
+
 
 def get_page_widgets_for_slot(widget):
     pass
 
 
 def get_widget_options(type):
-    try: 
+    try:
         widget_class = get_widget(type)
         return widget_class.options
     except AttributeError:

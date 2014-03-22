@@ -46,7 +46,7 @@ NAMES = (
     (HIDDEN, _("Hidden")),
     (RICHTEXTAREA, _("Multi line text")),
     (IMAGE, _("Image")),
-    )
+)
 
 # Field classes for all available field types.
 CLASSES = {
@@ -66,7 +66,7 @@ CLASSES = {
     NUMBER: forms.FloatField,
     URL: forms.URLField,
     IMAGE: forms.ImageField,
-    }
+}
 
 # Widgets for field types where a specialised widget is required.
 WIDGETS = {
@@ -78,7 +78,7 @@ WIDGETS = {
     DATE_TIME: SplitSelectDateTimeWidget,
     HIDDEN: forms.HiddenInput,
     IMAGE: forms.FileInput
-    }
+}
 
 #tiny hack to use IMAGE WIDGET CLASS if it exists
 try:
@@ -101,4 +101,4 @@ if settings.FORMS_USE_HTML5:
         EMAIL: html5_field("email", forms.TextInput),
         NUMBER: html5_field("number", forms.TextInput),
         URL: html5_field("url", forms.TextInput),
-        })
+    })

@@ -18,6 +18,7 @@ from django.db.models import Q
 #from mezzanine.utils.timezone import now
 from django.utils.timezone import now
 
+
 class WidgetOption(object):
     """
     Definition of a widget option
@@ -28,8 +29,7 @@ class WidgetOption(object):
         self.field_type = kwargs.get("field_type", TEXT)
         self.default = kwargs.get("default", None)
         self.field_args = kwargs.get("field_args", {})
-        self.help_text = kwargs.get("help_text", \
-                        "I am supposed to do something")
+        self.help_text = kwargs.get("help_text", "I am supposed to do something")
         self.required = kwargs.get("required", False)
 
 
@@ -39,7 +39,7 @@ class WidgetClassBase(object):
     """
     editableFields = ""
     template = None
-    raw = False 
+    raw = False
 
     def _render(self, context, slot, queryset=None, options=None):
         """
@@ -60,6 +60,7 @@ class WidgetClassBase(object):
 
     def cleanup(self, **kwargs):
         return True
+
 
 class WidgetModel(SiteRelated):
     widget = models.ForeignKey('widget.Widget')
@@ -86,8 +87,8 @@ class WidgetManager(CurrentSiteManager, PublishedManager, SearchableManager):
         from widget.utilities import widget_extra_permission
 
         #This allows a callback for extra user validation, eg. check if a user passes a test (has a subscription)
-        if for_user is not None and bool(for_user.is_staff
-            or bool(for_user.has_perm("widget.change_widget") and widget_extra_permission(for_user))):
+        if for_user is not None and bool(for_user.is_staff or bool(for_user.has_perm("widget.change_widget") and
+                                                                   widget_extra_permission(for_user))):
             return self.all()
         return self.filter(
             Q(publish_date__lte=now()) | Q(publish_date__isnull=True),
@@ -122,15 +123,13 @@ class Widget(Orderable, Ownable, SiteRelated):
     widgetslot = models.CharField(max_length=255, default="none")
     page_less = models.BooleanField(default=False)
     page = models.ForeignKey(Page, null=True, blank=True)
-    status = models.IntegerField(_("Publish Status"),
-        choices=CONTENT_STATUS_CHOICES, default=CONTENT_STATUS_DRAFT)
+    status = models.IntegerField(_("Publish Status"), choices=CONTENT_STATUS_CHOICES, default=CONTENT_STATUS_DRAFT)
     publish_date = models.DateTimeField(_("Published from"),
-        help_text=_("With published checked, won't be shown until this time"),
-        blank=True, null=True)
+                                        help_text=_("With published checked, won't be shown until this time"),
+                                        blank=True, null=True)
     expiry_date = models.DateTimeField(_("Expires on"),
-        help_text=_("With published checked, won't be shown after this time"),
-        blank=True, null=True)
-
+                                       help_text=_("With published checked, won't be shown after this time"),
+                                       blank=True, null=True)
 
     objects = WidgetManager()
     search_fields = {"keywords": 10, "display_title": 5}
@@ -146,7 +145,7 @@ class Widget(Orderable, Ownable, SiteRelated):
         widg = get_widget(self.widget_class)
         if hasattr(widg, 'Meta'):
             self.author = widg.Meta.author
-            if hasattr(widg.Meta, 'page_less'): 
+            if hasattr(widg.Meta, 'page_less'):
                 self.page_less = widg.Meta.page_less
                 self.page = None
         else:
@@ -157,13 +156,14 @@ class Widget(Orderable, Ownable, SiteRelated):
         if update_site:
             self.site = Site.objects.get_current()
         """Some widget classes can appear on all pages.
-        E.g those placed in the base template"""
-        if self.page == None:
+        E.g those placed in the base template
+        """
+        if not self.page:
             self.page_less = True
 
         """Generate Widget Title"""
         if self.display_title is None:
-            self.display_title = "%s_%s" %(self.widget_class, Widget.objects.count()+1)
+            self.display_title = "%s_%s" % (self.widget_class, Widget.objects.count()+1)
 
         super(Widget, self).save(*args, **kwargs)
 
@@ -185,18 +185,17 @@ class Widget(Orderable, Ownable, SiteRelated):
     def admin_link(self):
         if not self.page_less:
             return "<a href='%s'>%s</a>" % (self.page.get_absolute_url(),
-                                        ugettext("View on site"))
+                                            ugettext("View on site"))
         else:
             return ""
 
     admin_link.allow_tags = True
     admin_link.short_description = ""
 
-
     class Meta:
         verbose_name = _("Widget")
         verbose_name_plural = _("Widgets")
-        ordering = ("display_title",) 
+        ordering = ("display_title",)
 
 
 class WidgetOptionGroup(SiteRelated):
@@ -221,8 +220,8 @@ class WidgetOptionEntry(SiteRelated):
     A single option value for a form entry submitted via a user-built form.
     """
 
-    widget = models.ForeignKey("Widget", \
-                    related_name="options")
+    widget = models.ForeignKey("Widget",
+                               related_name="options")
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=settings.FORMS_FIELD_MAX_LENGTH)
 

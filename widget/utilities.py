@@ -25,11 +25,13 @@ except ImportError:
     except ImportError:
         from django.utils.simplejson import JSONEncoder
 
+
 class LazyEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Promise):
             return force_unicode(obj)
         return obj
+
 
 def check_permission(request, perm_name, app_label, model_name):
     '''
@@ -37,13 +39,14 @@ def check_permission(request, perm_name, app_label, model_name):
 
     '''
     obj = model = get_model(app_label, model_name)
-    if hasattr(obj, "is_%sable"% perm_name):
-        return getattr(obj, "is_%sable"% perm_name)(request)
+    if hasattr(obj, "is_%sable" % perm_name):
+        return getattr(obj, "is_%sable" % perm_name)(request)
     else:
         p = '%s.%s_%s' % (app_label, perm_name, model_name)
         return request.user.is_active and request.user.has_perm(p)
 
-def can(action, obj, request ):
+
+def can(action, obj, request):
     """
     Returns ``True`` if the user can execute the action for the object using the request.
     First check for a custom ``action`` handler on the object, otherwise use the logged
@@ -52,23 +55,24 @@ def can(action, obj, request ):
     app_label = obj._meta.app_label
     model_name = obj._meta.module_name
 
-    if hasattr(obj, "is_%sable"% action):
-        return getattr(obj, "is_%sable"% action)(request)
+    if hasattr(obj, "is_%sable" % action):
+        return getattr(obj, "is_%sable" % action)(request)
     else:
         p = '%s.%s_%s' % (app_label, action, model_name)
 #        print "Check that %s has perm %s -> %s" % (request.user, p, request.user.has_perm(p))
         return request.user.is_active and request.user.has_perm(p)
     return False
 
-def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
-    'OneToOneField']):
-    '''
+
+def model_to_dict(obj, exclude=['AutoField', 'ForeignKey',
+                                'OneToOneField']):
+    """
         serialize model object to dict with related objects
 
         author: Vadym Zakovinko <vp@zakovinko.com>
         date: January 31, 2011
         http://djangosnippets.org/snippets/2342/
-    '''
+    """
     tree = {}
     for field_name in obj._meta.get_all_field_names():
         try:
@@ -84,8 +88,7 @@ def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
                 exclude.append(obj.__class__.__name__)
             subtree = []
             for related_obj in getattr(obj, field_name).all():
-                value = model_to_dict(related_obj, \
-                    exclude=exclude)
+                value = model_to_dict(related_obj, exclude=exclude)
                 if value:
                     subtree.append(value)
             if subtree:
@@ -99,8 +102,7 @@ def model_to_dict(obj, exclude=['AutoField', 'ForeignKey', \
 
         if field.__class__.__name__ == 'RelatedObject':
             exclude.append(field.model.__name__)
-            tree[field_name] = model_to_dict(getattr(obj, field_name), \
-                exclude=exclude)
+            tree[field_name] = model_to_dict(getattr(obj, field_name), exclude=exclude)
             continue
 
         value = getattr(obj, field_name)
@@ -168,8 +170,7 @@ def ajax_view():
         def _view(request, *args, **kwargs):
             data = view(request, *args, **kwargs)
             # print data
-            return HttpResponse(json_serializer.encode(data),\
-                    mimetype='application/json')
+            return HttpResponse(json_serializer.encode(data), mimetype='application/json')
         _view.__name__ = view.__name__
         _view.__dict__ = view.__dict__
         _view.__doc__ = view.__doc__
@@ -177,13 +178,13 @@ def ajax_view():
         return wraps(view)(_view)
     return _dec
 
+
 def admin_can(model, action="add", fail404=False, ajax=False):
     def _dec(view):
         def _view(request, *args, **kwargs):
             redirect_field_name = "next"
             url = None
-            if redirect_field_name \
-                and redirect_field_name in request.REQUEST:
+            if redirect_field_name and redirect_field_name in request.REQUEST:
                 url = request.REQUEST[redirect_field_name]
             if not url:
                 url = "/"
@@ -207,10 +208,12 @@ def admin_can(model, action="add", fail404=False, ajax=False):
         return wraps(view)(_view)
     return _dec
 
+
 def ajaxerrors(forms):
     if isinstance(lst, basestring):
         for form in forms:
             ajaxerror(form)
+
 
 def ajaxerror(form):
     "from django_ajax_validation"
@@ -221,7 +224,7 @@ def ajaxerror(form):
     for key, val in errors.iteritems():
         if '__all__' in key:
             final_errors[key] = val
-        else:# not isinstance(formfields[key].field):
+        else:
             html_id = formfields[key].field.widget.attrs.get('id') or formfields[key].auto_id
             html_id = formfields[key].field.widget.id_for_label(html_id)
             final_errors[html_id] = val
@@ -239,14 +242,14 @@ def get_model_form_for_widget(widget_class_obj, data={}, widget=None, instance=N
         else:
             fields = widget_class_obj.editableFields
 
-        data_data = data.get("POST",None)
+        data_data = data.get("POST", None)
         if data_data:
-            data_data = dict((key,value) for key, value in data_data.iteritems())
+            data_data = dict((key, value) for key, value in data_data.iteritems())
             if widget:
-                data_data.update({"widget":widget.id})
+                data_data.update({"widget": widget.id})
 
-        model_form = ModelFormForWidget(widget_class_obj.model, fields=tuple(fields.split(',')), widget=widget) \
-                            (data_data, files=data.get("FILES", None), instance=instance)
+        model_form = ModelFormForWidget(widget_class_obj.model, fields=tuple(fields.split(',')), widget=widget)
+        (data_data, files=data.get("FILES", None), instance=instance)
 
         return model_form
     return None
@@ -283,6 +286,7 @@ def get_widget_model_queryset(widget, widget_class):
         raise
     return None
 
+
 def widget_extra_permission(user):
     from mezzanine.conf import settings
     try:
@@ -291,6 +295,5 @@ def widget_extra_permission(user):
     except AttributeError:
         return False
     except ImportError:
-        raise ImproperlyConfigured(_("Could not import the value of "
-                                     "settings.WIDGET_PERMISSION: %s"
-                                     % settings.WIDGET_PERMISSION))
+        raise ImproperlyConfigured(_("Could not import the value of ",
+                                     "settings.WIDGET_PERMISSION: %s" % settings.WIDGET_PERMISSION))

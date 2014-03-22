@@ -21,4 +21,3 @@ class TestWidget(WidgetClassBase):
         page_less = True
         name = _("Test")
         author = 'Osiloke Emoekpere'
-
