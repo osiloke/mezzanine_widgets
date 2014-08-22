@@ -80,11 +80,10 @@ class WidgetOptionsForm(forms.Form):
                 self.fields[field_key] = field_class(**field_args)
                 css_class = field_class.__name__.lower()
 
-                field_key_widget =  self.fields[field_key].widget
+                field_key_widget = self.fields[field_key].widget
                 if field.required:
                     css_class += " required"
-                    if (settings.FORMS_USE_HTML5 and
-                        field.field_type != option_fields.CHECKBOX_MULTIPLE):
+                    if (settings.FORMS_USE_HTML5 and field.field_type != option_fields.CHECKBOX_MULTIPLE):
                         field_key_widget.attrs["required"] = ""
                 try:
                     field_key_widget.attrs["class"] = css_class + " " + field_key_widget.attrs["class"]
@@ -115,8 +114,8 @@ class WidgetOptionsForm(forms.Form):
                 if isinstance(value, list):
                     value = ", ".join([v.strip() for v in value])
                 if value:
-                    option, created =  WidgetOptionEntry.objects.get_or_create(
-                                        name=field.name, widget=widget, defaults={"value":value}
+                    option, created = WidgetOptionEntry.objects.get_or_create(
+                        name=field.name, widget=widget, defaults={"value": value}
                     )
                     option.value = value
                     option.save()
@@ -124,7 +123,7 @@ class WidgetOptionsForm(forms.Form):
 
 
 def ModelFormForWidget(widget_model, fields=None, widget=None):
-    meta_data = { "model": widget_model, }
+    meta_data = {"model": widget_model, }
 
     try:
         widget_overrides = settings.WIDGET_OVERRIDES
@@ -137,7 +136,7 @@ def ModelFormForWidget(widget_model, fields=None, widget=None):
     if widget:
         widgets = {
             'widget': HiddenInput(),
-            }
+        }
         meta_data.update({"widgets": widgets})
 
     meta = type('Meta', (), meta_data)

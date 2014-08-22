@@ -32,8 +32,7 @@ def edit_widget(request, **kwargs):
 
         if request.POST:
             "get form populated with widget options"
-            options_form = WidgetOptionsForm(widget.widget_class, \
-                                             request.POST)
+            options_form = WidgetOptionsForm(widget.widget_class, request.POST)
             if options_form.is_valid():
                 if options_form.save(widget=widget):
                     data = {'valid': True, 'form': 'saved'}
@@ -41,7 +40,7 @@ def edit_widget(request, **kwargs):
                 data = ajaxerror(options_form)
             if containsModel:
                 obj = get_widget_model_queryset(widget, widget_class_obj)
-                model_form = get_model_form_for_widget(widget_class_obj, \
+                model_form = get_model_form_for_widget(widget_class_obj,
                                                        {"POST": request.POST, "FILES": request.FILES}, instance=obj,
                                                        widget=widget)
                 try:
@@ -61,10 +60,8 @@ def edit_widget(request, **kwargs):
 
             initial = {'status': widget.status}
             if widget.hasOptions:
-                initial.update(dict(("option_%s" % option.name, option.value) \
-                                    for option in widget.options.all()))
-            options_form = WidgetOptionsForm(widget.widget_class, \
-                                             data=initial)
+                initial.update(dict(("option_%s" % option.name, option.value), for option in widget.options.all()))
+            options_form = WidgetOptionsForm(widget.widget_class,  data=initial)
             extra_js = []
             o = get_template("widget/options.html")
             ctx.update({'options_form': options_form})
@@ -80,8 +77,7 @@ def edit_widget(request, **kwargs):
             extra_js += options_form.extra_js
             data = {'valid': False, 'type': 'ef', 'data': options, 'extra_js': extra_js}
 
-        return HttpResponse(json_serializer.encode(data), \
-                            mimetype='application/json')
+        return HttpResponse(json_serializer.encode(data), mimetype='application/json')
     except Exception:
         raise Http404()
 
@@ -102,7 +98,6 @@ def widget_list(request):
         widget_form = WidgetForm(request.POST)
     widget_class = request.POST["widget_class"]
     widget_class_obj = get_widget(widget_class)
-
 
     #Widget has options, lets generate the options form
     options_form = WidgetOptionsForm(widget_class)
@@ -172,11 +167,12 @@ def create_widget(request, **kwargs):
                 widget.save()
 
         model_widget = None
-        if widget: model_widget = widget
+        if widget:
+            model_widget = widget
         model_form = get_model_form_for_widget(widget_class_obj,
                                                {"POST": request.POST, "FILES": request.FILES},
                                                widget=model_widget
-        )
+                                               )
         if model_form:
             try:
                 if model_form.is_valid():
@@ -189,7 +185,7 @@ def create_widget(request, **kwargs):
             except Exception:
                 raise
     except Exception, e:
-        data = {"valid": False, \
+        data = {"valid": False,
                 "errors": {"_all_": ["Something went wrong, please refresh the page"], "exception": e.message}}
     if "valid" in data and data["valid"]:
         return HttpResponse(json_serializer.encode(data), mimetype='application/json')
@@ -209,8 +205,7 @@ def delete_widget(request, id):
         data = {'valid': True}
     except Exception:
         pass
-    return HttpResponse(json_serializer.encode(data), \
-                        mimetype='application/json')
+    return HttpResponse(json_serializer.encode(data), mimetype='application/json')
 
 
 @login_required
@@ -269,8 +264,7 @@ def widget_ordering(request):
             widget.save()
         except Exception, e:
             data = {'status': False, 'error': str(e)}
-    return HttpResponse(json_serializer.encode(data), \
-                        mimetype='application/json')
+    return HttpResponse(json_serializer.encode(data),  mimetype='application/json')
 
 
 @login_required
@@ -289,6 +283,4 @@ def widget_status(request):
     except Exception, e:
         data = {"status": False, "error": str(e.message)}
 
-    return HttpResponse(json_serializer.encode(data), \
-                        mimetype='application/json')
-
+    return HttpResponse(json_serializer.encode(data), mimetype='application/json')
